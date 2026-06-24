@@ -66,8 +66,8 @@
     de: {
       flag: "🇩🇪",
       label: "Deutschland",
-      amount: "€" + NBSP + "29,90",
-      per: "29,90" + NBSP + "€" + NBSP + "/" + NBSP + "100" + NBSP + "ml",
+      amount: "CHF" + NBSP + "27,50",
+      per: "27,50" + NBSP + "CHF" + NBSP + "/" + NBSP + "100" + NBSP + "ml",
     },
     ch: {
       flag: "🇨🇭",
