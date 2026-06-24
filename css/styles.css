@@ -472,12 +472,7 @@ section { position: relative; }
 }
 .region-modal.is-open .region-modal__card { transform: none; }
 .region-modal__card .eyebrow--light { color: var(--pink); }
-.region-modal__mono {
-  display: block; width: 54px; height: 66px; margin: 0 auto .9rem;
-  background-color: #7a2630; /* dunkles Etiketten-Rot — bessere Sichtbarkeit */
-  -webkit-mask: url(../assets/monogram-mint.png) center / contain no-repeat;
-  mask: url(../assets/monogram-mint.png) center / contain no-repeat;
-}
+.region-modal__mono { display: block; width: 46px; height: auto; margin: 0 auto .9rem; }
 .region-modal__card h2 { font-size: clamp(1.5rem, 4.5vw, 2rem); line-height: 1.1; margin-bottom: .6rem; }
 .region-modal__sub { font-size: .95rem; color: var(--ink-soft); max-width: 34ch; margin: 0 auto 1.5rem; }
 .region-modal__opts { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
