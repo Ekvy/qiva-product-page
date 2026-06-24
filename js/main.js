@@ -57,6 +57,91 @@
     });
   });
 
+  /* ---- Länder-/Preis-Auswahl ----
+     Beim ersten Besuch erscheint ein Dialog mit der Frage, aus welchem Land
+     eingekauft wird. Die Wahl wird gespeichert (localStorage) und passt die
+     angezeigte Währung & den Preis an. Über die Navigation jederzeit änderbar. */
+  const NBSP = " ";
+  const REGIONS = {
+    de: {
+      flag: "🇩🇪",
+      label: "Deutschland",
+      amount: "€" + NBSP + "29,90",
+      per: "29,90" + NBSP + "€" + NBSP + "/" + NBSP + "100" + NBSP + "ml",
+    },
+    ch: {
+      flag: "🇨🇭",
+      label: "Schweiz",
+      amount: "CHF" + NBSP + "34,90",
+      per: "34,90" + NBSP + "CHF" + NBSP + "/" + NBSP + "100" + NBSP + "ml",
+    },
+  };
+  const STORAGE_KEY = "qiva_region";
+
+  const modal = document.getElementById("regionModal");
+  if (modal) {
+    const card = modal.querySelector(".region-modal__card");
+    const backdrop = document.getElementById("regionBackdrop");
+
+    const readStored = () => {
+      try { return localStorage.getItem(STORAGE_KEY); } catch (_) { return null; }
+    };
+    const writeStored = (code) => {
+      try { localStorage.setItem(STORAGE_KEY, code); } catch (_) {}
+    };
+
+    const applyRegion = (code) => {
+      const r = REGIONS[code];
+      if (!r) return;
+      document.querySelectorAll("[data-price]").forEach((el) => { el.textContent = r.amount; });
+      document.querySelectorAll("[data-price-per]").forEach((el) => { el.textContent = r.per; });
+      document.querySelectorAll("[data-region-flag]").forEach((el) => { el.textContent = r.flag; });
+      document.querySelectorAll("[data-region-label]").forEach((el) => { el.textContent = r.label; });
+      document.documentElement.setAttribute("data-region", code);
+    };
+
+    const openModal = () => {
+      modal.hidden = false;
+      requestAnimationFrame(() => modal.classList.add("is-open"));
+      document.body.style.overflow = "hidden";
+    };
+    const closeModal = () => {
+      modal.classList.remove("is-open");
+      document.body.style.overflow = "";
+      const onEnd = () => { modal.hidden = true; modal.removeEventListener("transitionend", onEnd); };
+      modal.addEventListener("transitionend", onEnd);
+    };
+
+    // Auswahl-Buttons im Dialog
+    card.querySelectorAll(".region-opt").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const code = btn.getAttribute("data-region");
+        applyRegion(code);
+        writeStored(code);
+        closeModal();
+      });
+    });
+
+    // Land erneut ändern (Navigation)
+    document.querySelectorAll(".js-region-switch").forEach((btn) => {
+      btn.addEventListener("click", openModal);
+    });
+
+    // Schliessen nur erlaubt, wenn bereits ein Land gewählt wurde
+    const tryDismiss = () => { if (readStored()) closeModal(); };
+    if (backdrop) backdrop.addEventListener("click", tryDismiss);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") tryDismiss(); });
+
+    // Initialzustand
+    const stored = readStored();
+    if (stored && REGIONS[stored]) {
+      applyRegion(stored);
+    } else {
+      applyRegion("de"); // Standardanzeige, bis gewählt wird
+      openModal();
+    }
+  }
+
   /* ---- Footer year ---- */
   const year = document.getElementById("year");
   if (year) year.textContent = String(new Date().getFullYear());
