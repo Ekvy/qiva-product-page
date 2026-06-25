@@ -464,7 +464,7 @@ section { position: relative; }
 .summer__slogan {
   font-family: var(--font-serif); font-style: italic;
   font-size: clamp(1.15rem, 2.4vw, 1.5rem); color: var(--pink);
-  margin: -.4rem 0 .9rem;
+  margin: 0 0 .9rem;
 }
 .summer__copy h2 { font-size: clamp(1.9rem, 4.6vw, 3rem); line-height: 1.06; margin-bottom: 1rem; }
 .summer__lede { font-size: clamp(1rem, 1.4vw, 1.1rem); color: var(--ink-soft); max-width: 46ch; }
