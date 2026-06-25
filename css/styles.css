@@ -460,6 +460,7 @@ section { position: relative; }
   display: grid; grid-template-columns: 1.05fr .95fr; align-items: center;
   gap: clamp(1.8rem, 5vw, 4rem);
 }
+.summer__inner--media-left { grid-template-columns: .95fr 1.05fr; }
 .summer__copy h2 { font-size: clamp(1.9rem, 4.6vw, 3rem); line-height: 1.06; margin-bottom: 1rem; }
 .summer__lede { font-size: clamp(1rem, 1.4vw, 1.1rem); color: var(--ink-soft); max-width: 46ch; }
 .summer__points { list-style: none; margin: 1.6rem 0 2rem; display: grid; gap: .75rem; }
