@@ -148,6 +148,13 @@ section { position: relative; }
 }
 .btn--grad:hover { transform: translateY(-2px); box-shadow: 0 18px 38px -12px rgba(155,191,99,.78); filter: saturate(1.08); }
 
+/* Dark solid pill — for light backgrounds */
+.btn--dark {
+  background: var(--plum); color: var(--on-dark); border-color: transparent;
+  box-shadow: 0 12px 28px -12px rgba(67,51,46,.55);
+}
+.btn--dark:hover { transform: translateY(-2px); background: var(--plum-ink); box-shadow: 0 18px 40px -14px rgba(67,51,46,.72); }
+
 /* Ghost pill */
 .btn--ghost { background: transparent; color: var(--ink); border-color: rgba(70,56,48,.25); }
 .btn--ghost:hover { border-color: var(--pink); color: var(--pink); }
