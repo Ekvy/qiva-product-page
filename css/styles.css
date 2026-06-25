@@ -309,11 +309,45 @@ section { position: relative; }
 .actives { background: var(--bg-pastel); padding: clamp(4rem, 8vw, 7rem) clamp(1.25rem,4vw,2.5rem); }
 .actives > * { max-width: var(--maxw); margin-left: auto; margin-right: auto; }
 .actives__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; background: rgba(70,56,48,.1); border: 1px solid rgba(70,56,48,.1); border-radius: var(--radius); overflow: hidden; }
-.active { background: rgba(255,255,255,.88); padding: 1.8rem 1.6rem; transition: background .35s var(--ease); }
+.active { background: rgba(255,255,255,.88); padding: 1.8rem 1.6rem; transition: background .35s var(--ease); cursor: pointer; }
 .active:hover { background: #fff; }
-.active h3 { font-size: 1.5rem; margin-bottom: .4rem; color: var(--ink); display: flex; align-items: center; gap: .55rem; letter-spacing: .02em; }
+.active:focus-visible { outline: 2px solid var(--pink); outline-offset: -3px; }
+.active h3 { font-size: 1.5rem; margin-bottom: 0; color: var(--ink); display: flex; align-items: center; gap: .55rem; letter-spacing: .02em; }
 .active h3::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 8px rgba(190,222,130,.8); flex: none; }
-.active p { font-size: .92rem; color: var(--ink-soft); font-family: var(--font-body); }
+/* Aufklapp-Indikator (+ wird beim Öffnen zu ×) */
+.active h3::after {
+  content: "+"; margin-left: auto; flex: none;
+  font-family: var(--font-body); font-weight: 400; font-size: 1.15rem; line-height: 1;
+  width: 1.5rem; height: 1.5rem; display: grid; place-items: center;
+  color: var(--pink); border: 1px solid rgba(111,138,71,.4); border-radius: 50%;
+  transition: transform .35s var(--ease), background .3s, color .3s, border-color .3s;
+}
+.active:hover h3::after,
+.active:focus-within h3::after,
+.active.is-open h3::after {
+  transform: rotate(45deg); background: var(--lime); color: var(--ink); border-color: transparent;
+}
+/* Text klappt auf bei Hover / Fokus / Klick */
+.active p {
+  font-size: .92rem; color: var(--ink-soft); font-family: var(--font-body);
+  max-height: 0; opacity: 0; overflow: hidden; margin-top: 0;
+  transition: max-height .45s var(--ease), opacity .35s var(--ease), margin-top .45s var(--ease);
+}
+.active:hover p,
+.active:focus-within p,
+.active.is-open p {
+  max-height: 26em; opacity: 1; margin-top: .55rem;
+}
+/* Hinweis über der Liste */
+.actives__hint {
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  font-size: .85rem; color: var(--ink-soft); margin-bottom: 1.5rem; text-align: center;
+}
+.actives__hint .actives__hint-ico {
+  display: grid; place-items: center; width: 1.4rem; height: 1.4rem; flex: none;
+  border-radius: 50%; background: var(--lime); color: var(--ink);
+  font-size: .9rem; font-weight: 600; line-height: 1;
+}
 
 /* ---------- STATEMENT ---------- */
 .statement { position: relative; min-height: clamp(360px, 60vh, 560px); display: grid; place-items: center; overflow: hidden; }

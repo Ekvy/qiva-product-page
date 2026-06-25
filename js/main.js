@@ -57,6 +57,23 @@
     });
   });
 
+  /* ---- Wirkstoffe: Text per Hover (Desktop) bzw. Tap/Klick (Touch) aufklappen ----
+     Hover wird rein über CSS gelöst; hier ergänzen wir Klick + Tastatur, damit
+     es auch auf Touch-Geräten und barrierefrei funktioniert. */
+  document.querySelectorAll(".actives__grid .active").forEach((card) => {
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-expanded", "false");
+    const toggle = () => {
+      const open = card.classList.toggle("is-open");
+      card.setAttribute("aria-expanded", String(open));
+    };
+    card.addEventListener("click", toggle);
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+    });
+  });
+
   /* ---- Länder-/Preis-Auswahl ----
      Beim ersten Besuch erscheint ein Dialog mit der Frage, aus welchem Land
      eingekauft wird. Die Wahl wird gespeichert (localStorage) und passt die
