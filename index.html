@@ -278,6 +278,25 @@
              class="btn btn--lime btn--lg btn--buy js-buy" id="buyButton">
             Jetzt kaufen
           </a>
+
+          <!-- Newsletter-Banner mit 20% Rabatt (auch für die Schweiz) -->
+          <div class="newsletter-banner">
+            <p class="newsletter-banner__title">20&nbsp;% auf deine erste Bestellung 🎁</p>
+            <p class="newsletter-banner__lede">Melde dich zum QIVA-Newsletter an und sichere dir deinen
+              <strong>20&nbsp;%-Gutschein</strong> — plus Glow-Tipps &amp; Neuigkeiten.</p>
+            <form class="newsletter" novalidate>
+              <label class="sr-only" for="nlEmail-ch">E-Mail-Adresse</label>
+              <div class="newsletter__row">
+                <input type="email" id="nlEmail-ch" name="email" class="newsletter__input"
+                       placeholder="deine@email.ch" autocomplete="email" required />
+                <button type="submit" class="btn btn--lime newsletter__btn">20&nbsp;% sichern</button>
+              </div>
+              <p class="newsletter__hint">Mit der Anmeldung erhältst du deinen 20&nbsp;%-Gutschein für die
+                erste Bestellung. Abmeldung jederzeit möglich.</p>
+              <p class="newsletter__done" hidden>Danke! Dein 20&nbsp;%-Code ist unterwegs — schau in dein
+                Postfach. 💌</p>
+            </form>
+          </div>
         </div>
 
         <!-- Deutschland: noch kein Verkauf möglich – Coming soon + Newsletter (20% Rabatt) -->
@@ -296,10 +315,10 @@
                (siehe Kommentar "NEWSLETTER"). Aktuell zeigt es nur eine
                Bestätigung, ohne die Adresse zu speichern.
                =================================================================== -->
-          <form class="newsletter" id="newsletterForm" novalidate>
-            <label class="sr-only" for="nlEmail">E-Mail-Adresse</label>
+          <form class="newsletter" novalidate>
+            <label class="sr-only" for="nlEmail-de">E-Mail-Adresse</label>
             <div class="newsletter__row">
-              <input type="email" id="nlEmail" name="email" class="newsletter__input"
+              <input type="email" id="nlEmail-de" name="email" class="newsletter__input"
                      placeholder="deine@email.de" autocomplete="email" required />
               <button type="submit" class="btn btn--lime newsletter__btn">20&nbsp;% sichern</button>
             </div>

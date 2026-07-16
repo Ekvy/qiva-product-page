@@ -65,8 +65,7 @@
      Live-Betrieb an einen Newsletter-Dienst anbinden (Brevo/Mailchimp/…):
      entweder das <form action="…" method="post"> setzen oder hier den Fetch
      an den jeweiligen Endpoint ergänzen. */
-  const nlForm = document.getElementById("newsletterForm");
-  if (nlForm) {
+  document.querySelectorAll("form.newsletter").forEach((nlForm) => {
     nlForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const email = nlForm.querySelector('input[type="email"]');
@@ -78,7 +77,7 @@
       if (hint) hint.hidden = true;
       if (done) done.hidden = false;
     });
-  }
+  });
 
   /* ---- Wirkstoffe: Text per Hover (Desktop) bzw. Tap/Klick (Touch) aufklappen ----
      Hover wird rein über CSS gelöst; hier ergänzen wir Klick + Tastatur, damit

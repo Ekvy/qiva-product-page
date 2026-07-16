@@ -432,6 +432,20 @@ html[data-region="de"] .buy__card .price--center { display: none; }
 .buy__soon-lede { color: var(--on-dark-mute); max-width: 42ch; margin: 0 auto 1.6rem; }
 .buy__soon-lede strong { color: var(--on-dark); }
 
+/* Newsletter-Banner (Schweiz): abgesetzt unter dem Kauf-Button */
+.newsletter-banner {
+  margin-top: 1.8rem; padding: 1.6rem clamp(1rem, 4vw, 1.8rem);
+  border-radius: var(--radius-md, 18px);
+  border: 1px solid rgba(184,154,150,.28);
+  background: rgba(255,255,255,.05);
+}
+.newsletter-banner__title {
+  font-family: var(--font-display); font-size: clamp(1.3rem, 3.5vw, 1.7rem);
+  letter-spacing: .01em; margin-bottom: .5rem; color: var(--on-dark);
+}
+.newsletter-banner__lede { color: var(--on-dark-mute); max-width: 42ch; margin: 0 auto 1.2rem; }
+.newsletter-banner__lede strong { color: var(--on-dark); }
+
 /* Newsletter-Formular */
 .newsletter { max-width: 440px; margin: 0 auto; }
 .newsletter__row { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; }
