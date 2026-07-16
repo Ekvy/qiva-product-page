@@ -272,22 +272,43 @@
           <span class="price__meta">inkl. MwSt. zzgl. Versand</span>
         </div>
 
-        <!-- ===================================================================
-             STRIPE BUY BUTTON SLOT
-             Ersetze diesen Block später durch deinen Stripe Buy Button ODER
-             setze einfach den href des Links unten auf deinen Payment-Link.
+        <!-- Schweiz: echter Checkout über Stripe Payment Link -->
+        <div class="buy__region buy__region--ch">
+          <a href="https://buy.stripe.com/00w4gBeBT2NJenceus8Ra00"
+             class="btn btn--lime btn--lg btn--buy js-buy" id="buyButton">
+            Jetzt kaufen
+          </a>
+        </div>
 
-             Variante A – Payment Link (am einfachsten):
-               <a class="btn btn--lime btn--lg" href="HTTPS://BUY.STRIPE.COM/DEIN_LINK">Jetzt kaufen</a>
+        <!-- Deutschland: noch kein Verkauf möglich – Coming soon + Newsletter (20% Rabatt) -->
+        <div class="buy__region buy__region--de">
+          <p class="buy__soon">Coming soon in Germany! 🇩🇪</p>
+          <p class="buy__soon-lede">QIVA&nbsp;Sculpt ist in Deutschland bald erhältlich. Melde dich
+            für den Newsletter an und sichere dir <strong>20&nbsp;% Rabatt auf deine erste
+            Bestellung</strong> zum Launch.</p>
 
-             Variante B – Stripe Buy Button (Embed):
-               <script async src="https://js.stripe.com/v3/buy-button.js"></script>
-               <stripe-buy-button buy-button-id="..." publishable-key="pk_live_...">
-               </stripe-buy-button>
-             =================================================================== -->
-        <a href="#" class="btn btn--lime btn--lg btn--buy js-buy" id="buyButton" aria-disabled="true">
-          Jetzt kaufen
-        </a>
+          <!-- ===================================================================
+               NEWSLETTER SLOT
+               Dieses Formular an deinen Newsletter-Dienst anbinden
+               (z. B. Brevo / Mailchimp / CleverReach): entweder das
+               action-Attribut des <form> auf die Endpoint-URL setzen und
+               method="post" nutzen, oder die Anbindung in js/main.js ergänzen
+               (siehe Kommentar "NEWSLETTER"). Aktuell zeigt es nur eine
+               Bestätigung, ohne die Adresse zu speichern.
+               =================================================================== -->
+          <form class="newsletter" id="newsletterForm" novalidate>
+            <label class="sr-only" for="nlEmail">E-Mail-Adresse</label>
+            <div class="newsletter__row">
+              <input type="email" id="nlEmail" name="email" class="newsletter__input"
+                     placeholder="deine@email.de" autocomplete="email" required />
+              <button type="submit" class="btn btn--lime newsletter__btn">20&nbsp;% sichern</button>
+            </div>
+            <p class="newsletter__hint">Mit der Anmeldung erhältst du deinen 20&nbsp;%-Gutschein für die
+              erste Bestellung. Abmeldung jederzeit möglich.</p>
+            <p class="newsletter__done" hidden>Danke! Dein 20&nbsp;%-Code ist unterwegs — schau in dein
+              Postfach. 💌</p>
+          </form>
+        </div>
       </div>
     </section>
 

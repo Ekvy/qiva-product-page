@@ -50,12 +50,35 @@
   document.querySelectorAll(".js-buy").forEach((buy) => {
     buy.addEventListener("click", (e) => {
       const href = buy.getAttribute("href");
-      if (!href || href === "#" || buy.getAttribute("aria-disabled") === "true") {
-        e.preventDefault();
-        alert("Der Checkout wird in Kürze aktiviert. Folge uns auf @qiva.care für den Launch!");
-      }
+      const disabled = buy.getAttribute("aria-disabled") === "true";
+      if (!disabled && href && href !== "#") return; // Schweiz: normal zum Stripe-Checkout
+      // Deutschland: kein Checkout -> zum Coming-soon-/Newsletter-Bereich scrollen
+      if (href && href.charAt(0) === "#" && href !== "#") return; // Anchor-Scroll zulassen
+      e.preventDefault();
+      const buySection = document.getElementById("kaufen");
+      if (buySection) buySection.scrollIntoView({ behavior: "smooth" });
     });
   });
+
+  /* ---- NEWSLETTER (Deutschland: 20% Rabatt auf die erste Bestellung) ----
+     Placeholder-Anbindung: zeigt nach dem Absenden eine Bestätigung. Für den
+     Live-Betrieb an einen Newsletter-Dienst anbinden (Brevo/Mailchimp/…):
+     entweder das <form action="…" method="post"> setzen oder hier den Fetch
+     an den jeweiligen Endpoint ergänzen. */
+  const nlForm = document.getElementById("newsletterForm");
+  if (nlForm) {
+    nlForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = nlForm.querySelector('input[type="email"]');
+      if (!email || !email.checkValidity()) { if (email) email.reportValidity(); return; }
+      const row = nlForm.querySelector(".newsletter__row");
+      const hint = nlForm.querySelector(".newsletter__hint");
+      const done = nlForm.querySelector(".newsletter__done");
+      if (row) row.hidden = true;
+      if (hint) hint.hidden = true;
+      if (done) done.hidden = false;
+    });
+  }
 
   /* ---- Wirkstoffe: Text per Hover (Desktop) bzw. Tap/Klick (Touch) aufklappen ----
      Hover wird rein über CSS gelöst; hier ergänzen wir Klick + Tastatur, damit
@@ -85,12 +108,14 @@
       label: "Deutschland",
       amount: "CHF" + NBSP + "27,50",
       per: "27,50" + NBSP + "CHF" + NBSP + "/" + NBSP + "100" + NBSP + "ml",
+      buyUrl: null, // in Deutschland noch kein Verkauf -> Coming soon + Newsletter
     },
     ch: {
       flag: "🇨🇭",
       label: "Schweiz",
       amount: "CHF" + NBSP + "34,90",
       per: "34,90" + NBSP + "CHF" + NBSP + "/" + NBSP + "100" + NBSP + "ml",
+      buyUrl: "https://buy.stripe.com/00w4gBeBT2NJenceus8Ra00",
     },
   };
   const STORAGE_KEY = "qiva_region";
@@ -115,6 +140,19 @@
       document.querySelectorAll("[data-region-flag]").forEach((el) => { el.textContent = r.flag; });
       document.querySelectorAll("[data-region-label]").forEach((el) => { el.textContent = r.label; });
       document.documentElement.setAttribute("data-region", code);
+
+      // Buy-Buttons je nach Region: Schweiz -> Stripe-Checkout, Deutschland -> Coming soon
+      document.querySelectorAll(".js-buy").forEach((el) => {
+        if (r.buyUrl) {
+          el.setAttribute("href", r.buyUrl);
+          el.removeAttribute("aria-disabled");
+          el.textContent = "Jetzt kaufen";
+        } else {
+          el.setAttribute("href", "#kaufen");
+          el.setAttribute("aria-disabled", "true");
+          el.textContent = "Coming soon";
+        }
+      });
     };
 
     const openModal = () => {

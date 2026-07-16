@@ -415,6 +415,45 @@ section { position: relative; }
 .buy__note { font-size: .82rem; color: var(--on-dark-mute); margin-top: 1rem; }
 .buy .btn--lime { width: min(100%, 380px); }
 
+/* Region-abhängige Blöcke: nur der passende ist sichtbar */
+.buy__region { display: none; }
+html[data-region="ch"] .buy__region--ch { display: block; }
+html[data-region="de"] .buy__region--de { display: block; }
+/* In Deutschland ist das Produkt noch nicht kaufbar -> Preis im Kauf-Kärtchen ausblenden */
+html[data-region="de"] .buy__card .price--center { display: none; }
+
+/* Deutschland: Coming soon */
+.buy__soon {
+  font-family: var(--font-display, inherit);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  letter-spacing: .01em; margin: .4rem 0 .6rem;
+  color: var(--on-dark);
+}
+.buy__soon-lede { color: var(--on-dark-mute); max-width: 42ch; margin: 0 auto 1.6rem; }
+.buy__soon-lede strong { color: var(--on-dark); }
+
+/* Newsletter-Formular */
+.newsletter { max-width: 440px; margin: 0 auto; }
+.newsletter__row { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; }
+.newsletter__input {
+  flex: 1 1 220px; min-width: 0;
+  padding: .85rem 1rem; border-radius: var(--radius-sm, 12px);
+  border: 1px solid rgba(184,154,150,.4);
+  background: rgba(255,255,255,.06); color: var(--on-dark);
+  font: inherit;
+}
+.newsletter__input::placeholder { color: var(--on-dark-mute); }
+.newsletter__input:focus-visible { outline: 2px solid var(--blush, #d2eb96); outline-offset: 2px; }
+.newsletter__btn { flex: 0 0 auto; white-space: nowrap; }
+.newsletter__hint { font-size: .78rem; color: var(--on-dark-mute); margin-top: .9rem; }
+.newsletter__done { color: var(--on-dark); margin-top: .4rem; font-weight: 600; }
+
+/* Nur für Screenreader */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
 /* ---------- FOOTER ---------- */
 .footer { background: var(--plum); color: var(--on-dark-mute); padding: clamp(3rem,6vw,4.5rem) clamp(1.25rem,4vw,2.5rem) 2.5rem; }
 .footer__inner { max-width: var(--maxw); margin: 0 auto; display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 2.5rem; align-items: start; }
