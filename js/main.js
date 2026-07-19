@@ -196,6 +196,37 @@
     }
   }
 
+  /* ---- KONTAKTFORMULAR (Kontaktseite) ----
+     Ohne Backend: baut aus den Feldern eine mailto-Nachricht an support@ekatlevy.de
+     und öffnet die E-Mail-App des Nutzers. Für direkten Versand ohne E-Mail-App an
+     einen Formular-Dienst anbinden (Formspree/Brevo/…) und diesen Handler ersetzen. */
+  const contactForm = document.getElementById("contactForm");
+  if (contactForm) {
+    contactForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!contactForm.checkValidity()) { contactForm.reportValidity(); return; }
+      const val = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value.trim() : "";
+      };
+      const name = val("cfName");
+      const email = val("cfEmail");
+      const subject = val("cfSubject") || "Anfrage über das QIVA-Kontaktformular";
+      const message = val("cfMessage");
+      const body =
+        "Name: " + name + "\n" +
+        "E-Mail: " + email + "\n\n" +
+        message;
+      const mailto =
+        "mailto:support@ekatlevy.de" +
+        "?subject=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(body);
+      window.location.href = mailto;
+      const done = contactForm.querySelector(".contact-form__done");
+      if (done) done.hidden = false;
+    });
+  }
+
   /* ---- Footer year ---- */
   const year = document.getElementById("year");
   if (year) year.textContent = String(new Date().getFullYear());

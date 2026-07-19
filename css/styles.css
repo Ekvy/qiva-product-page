@@ -501,6 +501,32 @@ html[data-region="de"] .buy__card .price--center { display: none; }
 .legal__fill { background: rgba(190,222,130,.16); border-bottom: 1px solid rgba(120,150,70,.5); padding: 0 .25em; border-radius: 3px; font-weight: 600; color: var(--ink); }
 .legal__note { background: rgba(255,255,255,.7); border: 1px solid rgba(70,56,48,.1); border-left: 3px solid var(--pink); border-radius: 10px; padding: 1rem 1.2rem; margin: 1.4rem 0; font-size: .9rem; color: var(--ink-soft); }
 
+/* ---------- Kontaktformular (helle Rechtsseite) ---------- */
+.contact-form { max-width: 620px; margin: 1.8rem 0 0; }
+.contact-form__field { margin-bottom: 1.1rem; }
+.contact-form__field label {
+  display: block; font-family: var(--font-body); font-weight: 600; font-size: .9rem;
+  color: var(--ink); margin-bottom: .4rem;
+}
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form textarea {
+  width: 100%; font: inherit; color: var(--ink);
+  padding: .8rem 1rem; border-radius: 12px;
+  border: 1px solid rgba(70,56,48,.22); background: rgba(255,255,255,.75);
+}
+.contact-form textarea { resize: vertical; min-height: 140px; }
+.contact-form input:focus-visible,
+.contact-form textarea:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; border-color: transparent; }
+.contact-form__consent {
+  display: flex; gap: .6rem; align-items: flex-start;
+  font-family: var(--font-body); font-size: .88rem; color: var(--ink-soft);
+  line-height: 1.6; margin: .4rem 0 1.4rem;
+}
+.contact-form__consent input { margin-top: .2rem; flex: 0 0 auto; }
+.contact-form__btn { width: min(100%, 320px); }
+.contact-form__done { margin-top: 1.2rem; font-weight: 600; color: var(--ink); }
+
 /* ---------- Reveal ---------- */
 .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
 .reveal.is-visible { opacity: 1; transform: none; }

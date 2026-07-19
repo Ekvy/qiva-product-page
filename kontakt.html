@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kontakt · QIVA Sculpt</title>
+  <meta name="description" content="Kontaktformular von QIVA Sculpt — schreib uns deine Frage." />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#b39896" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/icon-32.png" />
+  <link rel="apple-touch-icon" href="./assets/icon-180.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+
+  <header class="legalbar">
+    <div class="legalbar__inner">
+      <a href="./index.html" aria-label="QIVA — zur Startseite">
+        <img src="./assets/wordmark-bronze.png" alt="QIVA" class="legalbar__logo" />
+      </a>
+      <a href="./index.html" class="legalbar__back">← Zur Startseite</a>
+    </div>
+  </header>
+
+  <main class="legal">
+    <h1 class="legal__title">Kontakt</h1>
+    <p class="legal__updated">Wir freuen uns über deine Nachricht — meist antworten wir innerhalb von 1–2 Werktagen.</p>
+
+    <p>
+      Du erreichst uns direkt per E-Mail unter
+      <a href="mailto:support@ekatlevy.de">support@ekatlevy.de</a> oder über das folgende Formular.
+    </p>
+
+    <!-- ===================================================================
+         KONTAKTFORMULAR-SLOT
+         Ohne Server-Backend öffnet das Formular beim Absenden die E-Mail-App
+         mit vorausgefüllter Nachricht an support@ekatlevy.de (mailto-Fallback,
+         siehe js/main.js -> "KONTAKTFORMULAR").
+         Für den direkten Versand ohne E-Mail-App an einen Formular-Dienst
+         anbinden (z. B. Formspree / Brevo): action-URL + method="post" setzen.
+         =================================================================== -->
+    <form class="contact-form" id="contactForm" novalidate>
+      <div class="contact-form__field">
+        <label for="cfName">Name</label>
+        <input type="text" id="cfName" name="name" autocomplete="name" required />
+      </div>
+      <div class="contact-form__field">
+        <label for="cfEmail">E-Mail</label>
+        <input type="email" id="cfEmail" name="email" autocomplete="email" placeholder="deine@email.de" required />
+      </div>
+      <div class="contact-form__field">
+        <label for="cfSubject">Betreff</label>
+        <input type="text" id="cfSubject" name="subject" />
+      </div>
+      <div class="contact-form__field">
+        <label for="cfMessage">Nachricht</label>
+        <textarea id="cfMessage" name="message" rows="6" required></textarea>
+      </div>
+      <label class="contact-form__consent">
+        <input type="checkbox" id="cfConsent" required />
+        <span>Ich habe die <a href="./datenschutz.html">Datenschutzerklärung</a> gelesen und bin mit der
+          Verarbeitung meiner Angaben zur Bearbeitung meiner Anfrage einverstanden.</span>
+      </label>
+      <button type="submit" class="btn btn--purple btn--lg contact-form__btn">Nachricht senden</button>
+      <p class="contact-form__done" hidden>Danke für deine Nachricht! Deine E-Mail-App sollte sich mit der
+        vorbereiteten Nachricht geöffnet haben — bitte nur noch absenden. 💌</p>
+    </form>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <img src="./assets/wordmark-mint.png" alt="QIVA" class="footer__logo" />
+        <p>Active Sculpt Body Cream · Handmade in Germany</p>
+      </div>
+      <nav class="footer__nav" aria-label="Footer">
+        <a href="./index.html#wirkung">Wirkung</a>
+        <a href="./index.html#wirkstoffe">Wirkstoffe</a>
+        <a href="./index.html#anwendung">Anwendung</a>
+        <a href="./index.html#details">Details</a>
+        <a href="https://instagram.com/qiva.care" target="_blank" rel="noopener">Instagram</a>
+      </nav>
+      <div class="footer__legal">
+        <p>QIVA — eine Marke der Ekat Levy GmbH · Sinserstrasse 67 · 6330 Cham · Schweiz<br />
+          Hergestellt in Deutschland von Malantis GmbH.</p>
+        <p class="footer__links">
+          <a href="./impressum.html">Impressum</a> · <a href="./datenschutz.html">Datenschutz</a> · <a href="./kontakt.html">Kontakt</a>
+        </p>
+        <p class="footer__copy">© <span id="year">2026</span> QIVA. Alle Rechte vorbehalten.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./js/main.js" defer></script>
+</body>
+</html>
