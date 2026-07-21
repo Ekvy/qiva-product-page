@@ -393,7 +393,7 @@ html[data-region="ch"] .promo-bar { display: block; }
 
 .nav__mobile { display: none; flex-direction: column; gap: .25rem; padding: .5rem clamp(1rem,4vw,2.5rem) 1.5rem; background: rgba(246,239,228,.99); border-bottom: 1px solid rgba(70,56,48,.08); }
 .nav__mobile a { padding: .85rem .25rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: .9rem; border-bottom: 1px solid rgba(70,56,48,.06); }
-.nav__mobile a.btn { border: 2px solid var(--neon-purple); margin-top: .6rem; justify-content: center; }
+.nav__mobile a.btn { background: var(--plum); color: var(--cream); border: 2px solid var(--plum); margin-top: .6rem; justify-content: center; }
 
 /* ---------- HERO (club-light plum) ---------- */
 .hero { position: relative; overflow: hidden; background: var(--bg-deep); color: var(--on-dark); }
