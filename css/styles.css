@@ -725,7 +725,7 @@ html[data-region="de"] .buy__card .price--center { display: none; }
   line-height: 1.6; margin: .4rem 0 1.4rem;
 }
 .contact-form__consent input { margin-top: .2rem; flex: 0 0 auto; }
-.contact-form__btn { width: min(100%, 320px); color: var(--ink); border-color: rgba(70,56,48,.35); }
+.contact-form__btn { width: min(100%, 320px); background: var(--plum); color: var(--cream); border-color: var(--plum); }
 .contact-form__done { margin-top: 1.2rem; font-weight: 600; color: var(--ink); }
 
 /* ---------- Reveal ---------- */
