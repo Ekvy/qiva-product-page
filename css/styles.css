@@ -335,6 +335,30 @@ section { position: relative; }
 .grain > * { position: relative; z-index: 2; }
 
 /* ---------- NAV ---------- */
+/* ---------- Launch-Aktionsleiste (animiertes Laufband, nur Schweiz) ---------- */
+.promo-bar {
+  display: none; position: relative; overflow: hidden;
+  background: linear-gradient(90deg, var(--lime), #e9f7c8 55%, var(--lime));
+  color: var(--plum); text-decoration: none;
+  font-size: .85rem; font-weight: 700; letter-spacing: .02em;
+  border-bottom: 1px solid rgba(70,56,48,.12);
+}
+html[data-region="ch"] .promo-bar { display: block; }
+.promo-bar__track {
+  display: inline-flex; white-space: nowrap; will-change: transform;
+  animation: promo-scroll 24s linear infinite;
+}
+.promo-bar:hover .promo-bar__track,
+.promo-bar:focus-visible .promo-bar__track { animation-play-state: paused; }
+.promo-bar__item { padding: .55rem 2.5rem; }
+.promo-bar__item strong { font-weight: 800; }
+.promo-bar__static { display: none; padding: .55rem 1rem; text-align: center; }
+@keyframes promo-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .promo-bar__track { display: none; }
+  .promo-bar__static { display: block; }
+}
+
 .nav {
   position: sticky; top: 0; z-index: 100;
   background: rgba(246,239,228,.72);
@@ -588,6 +612,9 @@ section { position: relative; }
   background: rgba(190,222,130,.14); border: 1px solid rgba(190,222,130,.4);
   color: var(--on-dark); font-size: .85rem; font-weight: 600; letter-spacing: .01em;
 }
+.buy__ship--promo { background: rgba(190,222,130,.2); border-color: rgba(190,222,130,.6); }
+.buy__ship--promo strong { color: var(--lime); font-weight: 800; letter-spacing: .05em; }
+.buy__ship-note { opacity: .78; font-weight: 500; }
 
 /* Region-abhängige Blöcke: nur der passende ist sichtbar */
 .buy__region { display: none; }
