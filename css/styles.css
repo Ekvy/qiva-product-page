@@ -581,6 +581,14 @@ section { position: relative; }
 .buy__note { font-size: .82rem; color: var(--on-dark-mute); margin-top: 1rem; }
 .buy .btn--lime { width: min(100%, 380px); }
 
+/* Versand-Hinweis im Kauf-Kärtchen (Schweiz) */
+.buy__ship {
+  display: inline-block; margin: 0 auto 1.1rem;
+  padding: .5rem 1rem; border-radius: 999px;
+  background: rgba(190,222,130,.14); border: 1px solid rgba(190,222,130,.4);
+  color: var(--on-dark); font-size: .85rem; font-weight: 600; letter-spacing: .01em;
+}
+
 /* Region-abhängige Blöcke: nur der passende ist sichtbar */
 .buy__region { display: none; }
 html[data-region="ch"] .buy__region--ch { display: block; }
