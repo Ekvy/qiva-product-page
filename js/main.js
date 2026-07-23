@@ -60,22 +60,53 @@
     });
   });
 
-  /* ---- NEWSLETTER (Deutschland: 20% Rabatt auf die erste Bestellung) ----
-     Placeholder-Anbindung: zeigt nach dem Absenden eine Bestätigung. Für den
-     Live-Betrieb an einen Newsletter-Dienst anbinden (Brevo/Mailchimp/…):
-     entweder das <form action="…" method="post"> setzen oder hier den Fetch
-     an den jeweiligen Endpoint ergänzen. */
+  /* ---- NEWSLETTER (Double-Opt-In via Brevo, 20% Rabatt) ----
+     Sendet die E-Mail an den Brevo-Proxy (Cloudflare Worker). Der Worker meldet
+     die Adresse per Double-Opt-In bei Brevo an (Liste "QIVA Newsletter") und
+     verschickt die Bestätigungsmail mit dem Code QIVA20. Der API-Key liegt
+     ausschließlich im Worker, nie hier im öffentlichen Code.
+     -> Nach dem Deploy des Workers hier die URL eintragen: */
+  const NEWSLETTER_ENDPOINT = "https://DEINE-WORKER-URL.workers.dev"; // TODO: eintragen
+
   document.querySelectorAll("form.newsletter").forEach((nlForm) => {
-    nlForm.addEventListener("submit", (e) => {
+    nlForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = nlForm.querySelector('input[type="email"]');
       if (!email || !email.checkValidity()) { if (email) email.reportValidity(); return; }
       const row = nlForm.querySelector(".newsletter__row");
       const hint = nlForm.querySelector(".newsletter__hint");
       const done = nlForm.querySelector(".newsletter__done");
-      if (row) row.hidden = true;
-      if (hint) hint.hidden = true;
-      if (done) done.hidden = false;
+      const btn = nlForm.querySelector('button[type="submit"]');
+
+      // Ohne konfigurierten Endpoint: nur die Bestätigung zeigen (kein Versand).
+      if (NEWSLETTER_ENDPOINT.includes("DEINE-WORKER-URL")) {
+        if (row) row.hidden = true;
+        if (hint) hint.hidden = true;
+        if (done) done.hidden = false;
+        return;
+      }
+
+      if (btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = "…"; }
+      try {
+        const res = await fetch(NEWSLETTER_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: email.value.trim(),
+            source: nlForm.dataset.source || "website",
+          }),
+        });
+        if (!res.ok) throw new Error("request failed");
+        if (row) row.hidden = true;
+        if (hint) hint.hidden = true;
+        if (done) done.hidden = false;
+      } catch (err) {
+        if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label || "20 % sichern"; }
+        if (hint) {
+          hint.hidden = false;
+          hint.textContent = "Ups, das hat gerade nicht geklappt. Bitte versuche es später erneut.";
+        }
+      }
     });
   });
 
