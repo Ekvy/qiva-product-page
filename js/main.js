@@ -2,6 +2,51 @@
 (function () {
   "use strict";
 
+  /* ---- Newsletter bestätigt: Gutscheincode nach dem Double-Opt-In anzeigen ----
+     Brevo leitet nach dem Klick auf "Anmeldung bestätigen" mit ?nl=ok hierher.
+     Erst dann (nach der Bestätigung) wird der Code QIVA20 sichtbar. */
+  (function revealCoupon() {
+    if (!/[?&]nl=ok\b/.test(window.location.search)) return;
+    const CODE = "QIVA20";
+    const overlay = document.createElement("div");
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.style.cssText =
+      "position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;" +
+      "padding:24px;background:rgba(67,51,46,.55);backdrop-filter:blur(4px);";
+    overlay.innerHTML =
+      '<div style="max-width:440px;width:100%;background:#f6efe4;border-radius:26px;overflow:hidden;' +
+      'box-shadow:0 44px 90px -32px rgba(74,58,52,.6);font-family:Inter,Helvetica,Arial,sans-serif;text-align:center;">' +
+        '<div style="background:#43332e;padding:26px;">' +
+          '<div style="font-family:\'Bebas Neue\',\'Arial Narrow\',Arial,sans-serif;font-size:34px;letter-spacing:.3em;color:#f6efe4;padding-left:.3em;">QIVA</div>' +
+        '</div>' +
+        '<div style="padding:34px 30px 8px;">' +
+          '<p style="margin:0 0 6px;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:#6f8a47;font-weight:600;">Anmeldung bestätigt 🌿</p>' +
+          '<h2 style="margin:0 0 14px;font-family:\'Bebas Neue\',\'Arial Narrow\',Arial,sans-serif;font-weight:400;font-size:32px;color:#43332e;">Willkommen bei QIVA</h2>' +
+          '<p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#463830;">Hier ist dein Gutschein für <strong>20 % auf deine erste Bestellung</strong>:</p>' +
+        '</div>' +
+        '<div style="margin:0 30px 24px;padding:22px;background:#efe6cf;border:2px dashed #6f8a47;border-radius:16px;">' +
+          '<div style="font-family:\'Bebas Neue\',\'Arial Narrow\',Arial,sans-serif;font-size:40px;letter-spacing:.16em;color:#43332e;padding-left:.16em;">' + CODE + '</div>' +
+        '</div>' +
+        '<div style="padding:0 30px 34px;">' +
+          '<button type="button" data-nl-close style="cursor:pointer;border:none;border-radius:999px;background:#cdf3a0;' +
+          'padding:14px 40px;font-family:\'Bebas Neue\',\'Arial Narrow\',Arial,sans-serif;font-size:18px;letter-spacing:.08em;color:#43332e;">Weiter shoppen</button>' +
+        '</div>' +
+      '</div>';
+    const close = () => {
+      overlay.remove();
+      const url = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, "", url);
+    };
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay || e.target.hasAttribute("data-nl-close")) close();
+    });
+    document.addEventListener("keydown", function onEsc(e) {
+      if (e.key === "Escape") { close(); document.removeEventListener("keydown", onEsc); }
+    });
+    (document.body || document.documentElement).appendChild(overlay);
+  })();
+
   /* ---- Sticky nav shrink on scroll ---- */
   const nav = document.getElementById("nav");
   if (nav) {
