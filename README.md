@@ -125,12 +125,26 @@ Account `info@ekatlevy.de`, free plan. What is configured:
 2. **Contact attributes** `QUELLE` and `RABATTCODE`, both text. The worker sends these with
    every signup (`website-ch` / `website-de` and `QIVA20`), which is how we can tell later
    which region a subscriber came from. **If they don't exist, Brevo rejects the request.**
-3. **Double-opt-in template** `QIVA — Double-Opt-In Bestätigung (Newsletter)` — **ID 5**,
-   active. The confirm button carries the tag `{{ doubleoptin }}`. That is the tag Brevo
-   itself uses in its built-in DOI template — *not* `{{ params.DOIurl }}`, which an earlier
-   version of this README claimed.
-4. **Welcome template** `QIVA — Willkommen + 20% Code` — ID 6, sent after confirmation.
-5. **Sender** `newsletter@qiva.ch` (display name `QIVA`), used by templates 5 and 6.
+3. **Double-opt-in template** — **ID 4**, active. The confirm button carries the tag
+   `{{ doubleoptin }}`, *not* `{{ params.DOIurl }}` as an earlier version of this README
+   claimed.
+
+   **Why ID 4 and not a hand-made template:** `/contacts/doubleOptinConfirmation` only
+   accepts Brevo's own DOI *system* templates — the ones the account is seeded with. A
+   template created by hand under *Templates* is rejected with
+   `{"code":"invalid_parameter","message":"An active DOI template does not exist"}`, even
+   when it is active and contains the right tag. That flag cannot be set after the fact, so
+   the QIVA design was moved **into** template 4 instead. Never point `DOI_TEMPLATE_ID` at a
+   freshly created template.
+
+4. **One email, not two.** The opt-in mail carries the `QIVA20` code directly. Trade-off,
+   decided deliberately: the code goes out before anyone confirms, so unconfirmed addresses
+   get it too — in exchange the customer needs no second mail to reach the discount.
+   Templates 5 and 6 are the superseded drafts, both deactivated and prefixed `[UNBENUTZT]`.
+   There is deliberately **no** post-confirmation mail: the DOI API only redirects to
+   `redirectionUrl`, it does not trigger Brevo's "final confirmation" template, and no
+   automation exists.
+5. **Sender** `newsletter@qiva.ch` (display name `QIVA`), used by template 4.
 6. **Domain authentication** for `qiva.ch` — DKIM, DMARC and the verification code are all
    green, so mail is signed and does not get treated as spoofed. The records live in the
    Hostpoint zone:
@@ -206,15 +220,31 @@ The worker only answers requests whose `Origin` is in its allow-list (`qiva.ch`,
 `www.qiva.ch`, `ekvy.github.io`, `localhost:8080`, `127.0.0.1:8080`). Everything else gets a
 403, so the endpoint cannot be abused from other sites.
 
-## 7. Test the newsletter end to end
+## 7. Test the newsletter end to end — done
+
+Verified on 2026-07-26 with a real address: mail requested, delivered, opened, confirm link
+clicked, contact created with `DOUBLE_OPT-IN: 1` and `listIds: [4]`, sender `newsletter@qiva.ch`.
+
+To repeat it:
 
 1. `python3 -m http.server 8080`, open `http://localhost:8080` (that exact origin — it is in
-   the worker's allow-list).
-2. Sign up with a real address you can read. The form should swap to "Danke! Dein 20 %-Code
-   ist unterwegs".
-3. Brevo *Contacts* → the address appears as **unconfirmed**.
-4. Click the confirmation link in the email → it lands on `qiva.ch/?nl=ok#kaufen`, the contact
-   flips to **confirmed** and joins the list, and the `QIVA20` coupon overlay appears.
+   the worker's allow-list). Or use the live site, but hard-reload first.
+2. Sign up with a **fresh** address. The form swaps to "Danke! Dein 20 %-Code ist unterwegs".
+3. Click the confirm button in the mail → lands on `qiva.ch/?nl=ok#kaufen`, the contact is
+   created and joins list 4, and the `QIVA20` overlay appears.
+
+Two traps when re-testing:
+
+- **A reused address sends nothing.** With a DOI request already pending, Brevo answers `204`
+  instead of `201` and skips the mail. The worker treats both as success (so a double click on
+  the form is not an error), so the browser still shows "Danke!". Always test with an address
+  that has never been used.
+- **Contacts stay empty until confirmation.** Brevo creates the contact on the click, not on
+  the signup — an empty contact list right after signing up is normal, not a failure.
+
+The authoritative check is the event log, not the contact list: Brevo → *Statistics →
+Email → Logs*, or via API `/smtp/statistics/events?email=…`. It shows `requests`,
+`delivered`, `opened`, `clicks` per message, plus the visible sender.
 
 If something fails, see [Newsletter troubleshooting](#newsletter-troubleshooting) below.
 
