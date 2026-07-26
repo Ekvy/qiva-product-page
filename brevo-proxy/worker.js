@@ -11,7 +11,12 @@
 
 // --- Konfiguration ---------------------------------------------------------
 const LIST_ID = 4;          // Brevo-Liste "QIVA Newsletter"
-const DOI_TEMPLATE_ID = 5;  // Brevo-Template "QIVA — Double-Opt-In Bestätigung"
+// Achtung: Brevo akzeptiert hier nur seine eigenen DOI-System-Templates. Ein
+// normal angelegtes Transaktions-Template wird mit
+// {"code":"invalid_parameter","message":"An active DOI template does not exist"}
+// abgelehnt, selbst wenn es {{ doubleoptin }} enthält. Template 4 ist Brevos
+// automatisch erzeugtes DOI-Template, inhaltlich auf QIVA umgebaut.
+const DOI_TEMPLATE_ID = 4;  // Brevo-Template "QIVA — Double-Opt-In Bestätigung"
 const DISCOUNT_CODE = "QIVA20";
 
 /**
