@@ -50,20 +50,27 @@ worker's CORS config — use one of them to test the newsletter signup locally.
 
 # Go live — do these in order
 
-Status on **2026-07-26**: the go-live branch is merged into `main` and pushed, so GitHub
-Pages now serves the new version and has picked up `qiva.ch` from the `CNAME` file.
+Status on **2026-07-26**: **steps 1–6 are done.** `https://qiva.ch` is live on GitHub Pages
+with a valid Let's Encrypt certificate, Brevo is configured, and the Cloudflare worker is
+deployed and wired into the page. What is left: the end-to-end newsletter test (step 7),
+Stripe (step 8), Search Console (step 9) and the final checks (step 10).
 
-> ⚠️ **The page is currently unreachable.** `ekvy.github.io/qiva-product-page/` 301-redirects
-> to `qiva.ch`, and that domain still resolves to the hosttech parking page. **Step 1 fixes
-> this** — until it is done, nobody can reach the site.
+Steps 1–3 brought the site online. Steps 4–6 make the newsletter work. Steps 7–10 are
+verification. Each step depends on the previous.
 
-Steps 1–3 bring the site back online. Steps 4–7 make the newsletter work. Steps 8–10 are
-launch verification. Do them in this order; each one depends on the previous.
+## 1. DNS at Hostpoint — done
 
-## 1. DNS at hosttech
+The domain is **registered at Hostpoint**, but its nameservers used to point at hosttech
+(`ns1/ns2/ns3.hostserv.eu`), left over from a registrar transfer. A transfer moves the domain
+but not the delegation, so the zone edited in the Hostpoint panel was never asked — every
+resolver kept getting hosttech's parking IP `185.101.158.113`.
 
-The domain is registered at hosttech (`qiva.ch` → `185.101.158.113` = `default.hosttech.eu`).
-Open the DNS editor there and set:
+The fix was *Domains → Nameserver → **Hostpoint Nameserver verwenden***, which switched the
+`.ch` delegation to `ns/ns2/ns3.hostpoint.ch`. Only then did the records below take effect.
+Note this also moved mail: the MX now points at `mx1/mx2.mail.hostpoint.ch` instead of
+hosttech.
+
+The records in the Hostpoint DNS editor:
 
 ```
 A     @      185.199.108.153
@@ -77,12 +84,10 @@ AAAA  @      2606:50c0:8003::153
 CNAME www    ekvy.github.io.
 ```
 
-- **Delete the existing A record on the apex first** (`185.101.158.113`) — it is hosttech's
-  parking page and will conflict.
-- **Do not touch MX records** if email runs on qiva.ch.
-- Set TTL to 300 s during the switch, raise it again afterwards.
-- If hosttech offers `ALIAS`/`ANAME`, one record pointing at `ekvy.github.io` can replace the
-  eight A/AAAA records.
+- **Do not touch MX or the SPF TXT record** — mail for qiva.ch runs on Hostpoint.
+- TTL 300 s is fine to leave as is.
+- The zone also carries a wildcard `*.qiva.ch → 217.26.48.101`. Explicit records always win
+  over it, so the entries above and the Brevo records in step 4 are unaffected.
 
 An apex domain cannot be a CNAME (DNS spec), hence the A/AAAA records. Those IPs are
 GitHub's and identical for every account. Verify before moving on:
@@ -112,68 +117,94 @@ TXT   _github-pages-challenge-ekvy    <value from GitHub>
 This stops anyone else from claiming qiva.ch on their own Pages site if the DNS records are
 ever left dangling.
 
-## 4. Set up Brevo
+## 4. Set up Brevo — done
 
-Free account at [brevo.com](https://www.brevo.com). Four things, in this order — the worker
-references three IDs from here.
+Account `info@ekatlevy.de`, free plan. What is configured:
 
-1. **Contact list.** *Contacts → Lists → Create a list*, name it `QIVA Newsletter`. Note the
-   **list ID**.
-2. **Contact attributes.** *Contacts → Settings → Contact attributes* → add two text
-   attributes, `QUELLE` and `RABATTCODE`. The worker sends these with every signup
-   (`website-ch` / `website-de` and `QIVA20`), which is how we can tell later which region a
-   subscriber came from. **If they don't exist, Brevo rejects the request.**
-3. **Double-opt-in template.** *Marketing → Templates → Create template → Email template*,
-   name it `QIVA — Double-Opt-In Bestätigung`. It **must** contain the confirmation link as
-   the tag `{{ params.DOIurl }}` — put it on the confirm button ("Anmeldung bestätigen").
-   Without that tag Brevo does not accept it as a DOI template and the API call fails. Save
-   and activate, then note the **template ID**.
-4. **API key.** *Settings → SMTP & API → API Keys → Generate a new API key*. Copy it now —
-   Brevo shows it exactly once. It goes into Cloudflare in step 5, **never** into this repo.
+1. **Contact list** `QIVA Newsletter` — **ID 4**.
+2. **Contact attributes** `QUELLE` and `RABATTCODE`, both text. The worker sends these with
+   every signup (`website-ch` / `website-de` and `QIVA20`), which is how we can tell later
+   which region a subscriber came from. **If they don't exist, Brevo rejects the request.**
+3. **Double-opt-in template** `QIVA — Double-Opt-In Bestätigung (Newsletter)` — **ID 5**,
+   active. The confirm button carries the tag `{{ doubleoptin }}`. That is the tag Brevo
+   itself uses in its built-in DOI template — *not* `{{ params.DOIurl }}`, which an earlier
+   version of this README claimed.
+4. **Welcome template** `QIVA — Willkommen + 20% Code` — ID 6, sent after confirmation.
+5. **Sender** `newsletter@qiva.ch` (display name `QIVA`), used by templates 5 and 6.
+6. **Domain authentication** for `qiva.ch` — DKIM, DMARC and the verification code are all
+   green, so mail is signed and does not get treated as spoofed. The records live in the
+   Hostpoint zone:
+   ```
+   CNAME  brevo1._domainkey   b1.qiva-ch.dkim.brevo.com
+   CNAME  brevo2._domainkey   b2.qiva-ch.dkim.brevo.com
+   TXT    @                   brevo-code:<verification value>
+   TXT    _dmarc              v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com
+   ```
+   Brevo needs **no SPF change** here — it uses its own return-path domain. Lucky, because
+   the existing `v=spf1 redirect=spf.mail.hostpoint.ch` swallows anything appended after the
+   `redirect=` modifier.
 
-Then open `brevo-proxy/worker.js` and correct the two IDs at the top if they differ from what
-Brevo assigned:
+**Still open:** `newsletter@qiva.ch` has no mailbox or alias at Hostpoint. Sending works
+without one (that runs on DKIM), but `replyTo` resolves to the sender address, so replies and
+bounces are currently lost. An alias onto an existing mailbox is enough.
+
+The API key is created manually — *Settings → SMTP & API → API Keys*. Brevo has no endpoint
+that issues API keys, by design. It goes into Cloudflare in step 5, **never** into this repo.
+
+The IDs above are already set in `brevo-proxy/worker.js`:
 
 ```js
-const LIST_ID = 3;          // <- your list ID from 4.1
-const DOI_TEMPLATE_ID = 5;  // <- your template ID from 4.3
+const LIST_ID = 4;
+const DOI_TEMPLATE_ID = 5;
 ```
 
-## 5. Deploy the Cloudflare Worker
+## 5. Deploy the Cloudflare Worker — done
 
-Free account at [dash.cloudflare.com](https://dash.cloudflare.com), no credit card. The
-Workers free tier is 100k requests/day, far beyond what a signup form needs. This account is
-**only** for the worker — DNS stays at hosttech.
+Deployed as `qiva-newsletter` on the free tier (100k requests/day, no credit card). This
+Cloudflare account is **only** for the worker — DNS stays at Hostpoint.
 
-**Via the dashboard:**
+```
+https://qiva-newsletter.bold-dew-8a6f.workers.dev
+```
 
-1. **Compute (Workers)** → *Create* → *Start from Hello World* → name it `qiva-newsletter` →
-   **Deploy**.
-2. *Edit code* → replace everything with the contents of `brevo-proxy/worker.js` → **Deploy**.
-3. *Settings → Variables and Secrets* → **Add** → type **Secret**, name `BREVO_API_KEY`,
-   value = the key from step 4.4 → **Deploy** again.
-4. Copy the worker URL (`https://qiva-newsletter.<subdomain>.workers.dev`).
+`BREVO_API_KEY` is set as a Worker **secret**, not a plain variable, so it is write-only in
+the dashboard and never appears in the page source.
 
-**Or via CLI**, using the included `brevo-proxy/wrangler.toml`:
+**Redeploying** — copy `.env.example` to `.env` and fill in `CLOUDFLARE_API_TOKEN` (dashboard
+→ API Tokens → template *Edit Cloudflare Workers*), `CLOUDFLARE_ACCOUNT_ID` and
+`BREVO_API_KEY`. `.env` is gitignored and must stay that way.
 
 ```bash
-npm install -g wrangler
-wrangler login
+set -a; source .env; set +a
 cd brevo-proxy
-wrangler secret put BREVO_API_KEY    # paste the key when prompted
-wrangler deploy
+npx wrangler deploy
+printf '%s' "$BREVO_API_KEY" | npx wrangler secret put BREVO_API_KEY   # only when it changes
+npx wrangler tail                                                      # live logs
 ```
 
-## 6. Connect the page to the worker
+Setting a secret rolls out a new version. For a minute or so both versions serve traffic, so
+a request right after `secret put` can still hit the old one and answer
+`{"error":"BREVO_API_KEY fehlt"}`. Wait and retry before assuming it is broken.
 
-Paste the worker URL into `js/main.js` — it still holds a placeholder:
+Alternatively via the dashboard: **Workers & Pages** → *Create application* → *Start with
+Hello World!* → name `qiva-newsletter` → *Edit code*, paste `brevo-proxy/worker.js` → deploy
+→ *Settings → Variables and Secrets* → add `BREVO_API_KEY` as type **Secret**.
+
+## 6. Connect the page to the worker — done
+
+`js/main.js` points at the worker:
 
 ```js
-const NEWSLETTER_ENDPOINT = "https://DEINE-WORKER-URL.workers.dev"; // <- replace
+const NEWSLETTER_ENDPOINT = "https://qiva-newsletter.bold-dew-8a6f.workers.dev";
 ```
 
-Commit and push to `main`. Until this is done, every signup shows "Danke!" and stores
-nothing — which means the 20 % discount code advertised on the page is never delivered.
+The page has a guard: while the placeholder `DEINE-WORKER-URL` is in there, a signup only
+shows "Danke!" and sends nothing — so the site never looks broken, but the 20 % code is never
+delivered either. Changing the worker name or subdomain means updating this line too.
+
+The worker only answers requests whose `Origin` is in its allow-list (`qiva.ch`,
+`www.qiva.ch`, `ekvy.github.io`, `localhost:8080`, `127.0.0.1:8080`). Everything else gets a
+403, so the endpoint cannot be abused from other sites.
 
 ## 7. Test the newsletter end to end
 
@@ -273,9 +304,10 @@ requires a publicly reachable redirect URL.
 |---|---|
 | Console: CORS / 403 | Origin not in `SITES`. Use `localhost:8080`, not `:3000` or a `file://` path |
 | Form shows the error hint | Worker returned 502 — check the Brevo detail in the Cloudflare worker logs |
-| 500 "BREVO_API_KEY fehlt" | Secret not set, or set as a plain variable instead of a Secret |
+| 500 "BREVO_API_KEY fehlt" | Secret not set or set as a plain variable — or a new version is still rolling out right after `secret put`; retry after a minute |
 | Brevo 400 on the API call | `QUELLE`/`RABATTCODE` attributes missing, or wrong `LIST_ID`/`DOI_TEMPLATE_ID` |
-| No email arrives | Template not activated, or `{{ params.DOIurl }}` missing from it |
+| No email arrives | Template not activated, or `{{ doubleoptin }}` missing from it |
+| Mail lands in spam | Check Brevo → *Senders, Domains & Dedicated IPs* — the qiva.ch DKIM/DMARC records must still be green |
 | Signup silently "succeeds", no contact | The honeypot caught it — the hidden `website` field was filled |
 
 ## SEO / structured data in place

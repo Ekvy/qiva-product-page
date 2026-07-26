@@ -112,7 +112,7 @@
      ausschließlich im Worker, nie hier im öffentlichen Code.
      Einrichtung: README.md → "Newsletter setup (Brevo + Cloudflare Worker)".
      -> Nach dem Deploy des Workers hier die URL eintragen: */
-  const NEWSLETTER_ENDPOINT = "https://DEINE-WORKER-URL.workers.dev"; // TODO: eintragen
+  const NEWSLETTER_ENDPOINT = "https://qiva-newsletter.bold-dew-8a6f.workers.dev";
 
   document.querySelectorAll("form.newsletter").forEach((nlForm) => {
     nlForm.addEventListener("submit", async (e) => {

@@ -10,7 +10,7 @@
  */
 
 // --- Konfiguration ---------------------------------------------------------
-const LIST_ID = 3;          // Brevo-Liste "QIVA Newsletter"
+const LIST_ID = 4;          // Brevo-Liste "QIVA Newsletter"
 const DOI_TEMPLATE_ID = 5;  // Brevo-Template "QIVA — Double-Opt-In Bestätigung"
 const DISCOUNT_CODE = "QIVA20";
 
