@@ -195,12 +195,11 @@ into both `index.html` and `js/main.js`.
 
 **Should be done before launch, not strictly blocking:**
 
-- [ ] **Name the newsletter processor in `datenschutz.html`.** Section 8 currently says only
-      that "ein spezialisierter Versanddienstleister" *may* be used. Now that the decision is
-      Brevo, it should be named, along with the third-country transfer. Suggested addition:
-      Brevo (Sendinblue GmbH, Köln / Brevo SAS, Paris) as processor, plus Cloudflare for the
-      signup proxy — Cloudflare is currently only covered by the generic "GitHub und
-      beteiligte Hosting- und IT-Dienstleister" line in the recipients list.
+- [ ] **Have the new `datenschutz.html` wording reviewed.** Section 8 now names Brevo as the
+      newsletter processor, describes the double-opt-in flow and the Cloudflare signup proxy;
+      section 11 lists both, and France was added to section 12. This was written to match the
+      actual data flow, but it is legal text and has **not** been reviewed by a lawyer — check
+      the exact Brevo contracting entity against your own AV-Vertrag before launch.
 - [ ] **Run one real Stripe purchase** end to end. The payment link is in the code but has
       never been tested from the live domain — confirm CHF 27.50, the CH shipping option and
       the confirmation email.
