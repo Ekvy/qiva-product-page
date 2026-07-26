@@ -660,6 +660,11 @@ html[data-region="de"] .buy__card .price--center { display: none; }
 .newsletter__input::placeholder { color: var(--on-dark-mute); }
 .newsletter__input:focus-visible { outline: 2px solid var(--blush, #d2eb96); outline-offset: 2px; }
 .newsletter__btn { flex: 0 0 auto; white-space: nowrap; }
+/* Honeypot gegen Bots: komplett aus dem Blickfeld, aber im DOM vorhanden. */
+.newsletter__trap {
+  position: absolute; left: -9999px; width: 1px; height: 1px;
+  opacity: 0; pointer-events: none;
+}
 .newsletter__hint { font-size: .78rem; color: var(--on-dark-mute); margin-top: .9rem; }
 .newsletter__done { color: var(--on-dark); margin-top: .4rem; font-weight: 600; }
 

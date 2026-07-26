@@ -1,0 +1,16 @@
+# Cloudflare Worker config — nur nötig, wenn du per CLI deployst:
+#
+#   npm install -g wrangler
+#   wrangler login
+#   wrangler secret put BREVO_API_KEY     # Key einmalig hinterlegen
+#   wrangler deploy
+#
+# Über das Cloudflare-Dashboard (Copy-Paste von worker.js) wird diese Datei
+# nicht gebraucht. Details: README.md → "Newsletter setup".
+
+name = "qiva-newsletter"
+main = "worker.js"
+compatibility_date = "2026-07-01"
+
+# BREVO_API_KEY wird bewusst NICHT hier eingetragen, sondern als Secret
+# gesetzt (wrangler secret put ...). Diese Datei liegt im öffentlichen Repo.

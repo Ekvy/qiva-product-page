@@ -389,6 +389,10 @@
               <strong>20&nbsp;%-Gutschein</strong> — plus Glow-Tipps &amp; Neuigkeiten.</p>
             <form class="newsletter" data-source="website-ch" novalidate>
               <label class="sr-only" for="nlEmail-ch">E-Mail-Adresse</label>
+              <!-- Honeypot: für Menschen unsichtbar. Füllt ein Bot das Feld aus,
+                   verwirft der Worker die Anmeldung stillschweigend. -->
+              <input type="text" name="website" class="newsletter__trap" tabindex="-1"
+                     autocomplete="off" aria-hidden="true" />
               <div class="newsletter__row">
                 <input type="email" id="nlEmail-ch" name="email" class="newsletter__input"
                        placeholder="deine@email.ch" autocomplete="email" required />
@@ -410,16 +414,16 @@
             Bestellung</strong> zum Launch.</p>
 
           <!-- ===================================================================
-               NEWSLETTER SLOT
-               Dieses Formular an deinen Newsletter-Dienst anbinden
-               (z. B. Brevo / Mailchimp / CleverReach): entweder das
-               action-Attribut des <form> auf die Endpoint-URL setzen und
-               method="post" nutzen, oder die Anbindung in js/main.js ergänzen
-               (siehe Kommentar "NEWSLETTER"). Aktuell zeigt es nur eine
-               Bestätigung, ohne die Adresse zu speichern.
+               NEWSLETTER
+               Der Versand läuft über js/main.js -> Cloudflare Worker
+               (brevo-proxy/) -> Brevo Double-Opt-In. Einrichtung und
+               Fehlersuche: README.md, Abschnitt "Newsletter setup".
                =================================================================== -->
           <form class="newsletter" data-source="website-de" novalidate>
             <label class="sr-only" for="nlEmail-de">E-Mail-Adresse</label>
+            <!-- Honeypot, siehe Formular oben. -->
+            <input type="text" name="website" class="newsletter__trap" tabindex="-1"
+                   autocomplete="off" aria-hidden="true" />
             <div class="newsletter__row">
               <input type="email" id="nlEmail-de" name="email" class="newsletter__input"
                      placeholder="deine@email.de" autocomplete="email" required />

@@ -110,6 +110,7 @@
      die Adresse per Double-Opt-In bei Brevo an (Liste "QIVA Newsletter") und
      verschickt die Bestätigungsmail mit dem Code QIVA20. Der API-Key liegt
      ausschließlich im Worker, nie hier im öffentlichen Code.
+     Einrichtung: README.md → "Newsletter setup (Brevo + Cloudflare Worker)".
      -> Nach dem Deploy des Workers hier die URL eintragen: */
   const NEWSLETTER_ENDPOINT = "https://DEINE-WORKER-URL.workers.dev"; // TODO: eintragen
 
@@ -139,6 +140,7 @@
           body: JSON.stringify({
             email: email.value.trim(),
             source: nlForm.dataset.source || "website",
+            website: (nlForm.querySelector('input[name="website"]') || {}).value || "",
           }),
         });
         if (!res.ok) throw new Error("request failed");

@@ -28,6 +28,7 @@ css/styles.css      # all styling + responsive + animations
 js/main.js          # nav, mobile menu, scroll-reveal, INCI accordion,
                     # region switch (DE/CH), newsletter, contact form
 brevo-proxy/        # Cloudflare Worker: newsletter double-opt-in via Brevo
+                    # worker.js + wrangler.toml (only needed for CLI deploys)
 assets/             # optimized photos (webp + jpg) and transparent logos
 CNAME               # custom domain for GitHub Pages -> qiva.ch
 sitemap.xml         # 5 page URLs, submitted to Google Search Console
@@ -47,34 +48,135 @@ worker's CORS config — use one of them if you want to test the newsletter sign
 
 ---
 
+# Newsletter setup (Brevo + Cloudflare Worker)
+
+The signup form on the page is our own markup (`index.html`, two instances: CH and DE). It
+does **not** post to Brevo directly — it posts JSON to a small Cloudflare Worker
+(`brevo-proxy/worker.js`) which then calls Brevo's API.
+
+```
+form (index.html)  ──POST {email, source}──▶  Cloudflare Worker  ──Brevo API──▶  DOI email
+                                             (holds BREVO_API_KEY)                    │
+        page shows "Danke!"  ◀────────────────────────────────────┐                   │
+                                                                  │            user clicks
+        ?nl=ok → coupon code shown (js/main.js)  ◀─────────────────┴──── redirect back
+```
+
+**Why the worker at all:** GitHub Pages is static, so there is no server to keep a secret on.
+Brevo's API key allows reading and exporting the whole contact list — it can never sit in
+public page JS. The worker is the smallest possible place to hold it.
+
+We are deliberately *not* using **Brevo → Marketing → Forms**. That would mean Brevo hosts
+the form (iframe/embed) with its own styling, and the captcha block in that editor would need
+Google reCAPTCHA keys. Our route keeps the page's own design, and spam is handled by a
+honeypot field plus double opt-in instead — no Google data transfer, nothing extra to declare
+in `datenschutz.html`.
+
+## Part A — Brevo
+
+Do this first; the worker references three IDs from here.
+
+1. **Create the contact list.** *Contacts → Lists → Create a list*, name it
+   `QIVA Newsletter`. Open it and read the **list ID** from the URL or the list detail —
+   this is `LIST_ID` in `worker.js` (currently `3`).
+2. **Create the contact attributes.** *Contacts → Settings → Contact attributes* → add two
+   text attributes, `QUELLE` and `RABATTCODE`. The worker sends these with every signup
+   (`website-ch` / `website-de` and `QIVA20`), which is how we can tell later which region a
+   subscriber came from. **If they don't exist, Brevo rejects the request.**
+3. **Create the double-opt-in template.** *Marketing → Templates → Create template → Email
+   template*, name it `QIVA — Double-Opt-In Bestätigung`. It must contain the confirmation
+   link as the tag `{{ params.DOIurl }}` — without it Brevo does not accept the template as
+   a DOI template and the API call fails. Put it on the confirm button, e.g.
+   "Anmeldung bestätigen". Save and activate it, then read the **template ID** from the
+   template list — this is `DOI_TEMPLATE_ID` in `worker.js` (currently `5`).
+4. **Generate the API key.** *Settings → SMTP & API → API Keys → Generate a new API key*.
+   Copy it now; Brevo shows it exactly once. This goes into Cloudflare in Part B, **not**
+   into this repo.
+5. Update `LIST_ID` and `DOI_TEMPLATE_ID` at the top of `brevo-proxy/worker.js` if the IDs
+   Brevo assigned differ from the values already in the file.
+
+## Part B — Cloudflare
+
+A free account is enough (no credit card). Workers' free tier is 100k requests/day, which is
+far beyond what a newsletter form needs.
+
+**Via the dashboard (no tooling):**
+
+1. Sign up at [dash.cloudflare.com](https://dash.cloudflare.com) → **Compute (Workers)** →
+   *Create* → *Start from Hello World* → name it `qiva-newsletter` → **Deploy**.
+2. *Edit code* → replace everything with the contents of `brevo-proxy/worker.js` → **Deploy**.
+3. *Settings → Variables and Secrets* → **Add** → type **Secret**, name `BREVO_API_KEY`,
+   value = the key from Part A step 4 → **Deploy** again.
+4. Copy the worker URL (`https://qiva-newsletter.<subdomain>.workers.dev`).
+
+**Via CLI instead**, using the included `brevo-proxy/wrangler.toml`:
+
+```bash
+npm install -g wrangler
+wrangler login
+cd brevo-proxy
+wrangler secret put BREVO_API_KEY    # paste the key when prompted
+wrangler deploy
+```
+
+Then paste the worker URL into **`js/main.js`** as `NEWSLETTER_ENDPOINT` (it still holds the
+placeholder `https://DEINE-WORKER-URL.workers.dev`) and commit.
+
+The Cloudflare account is only needed for this worker — DNS for qiva.ch stays wherever it is
+today. If DNS *is* moved to Cloudflare later, note the "DNS only / grey cloud" caveat in
+step 2 of the go-live checklist below.
+
+## Allowed origins and the confirmation redirect
+
+`worker.js` has one `SITES` map that does double duty: it is the CORS allow-list *and* it
+decides where the double-opt-in link sends the user afterwards, based on which site the
+signup came from. `qiva.ch`, `www.qiva.ch` and `ekvy.github.io` are all in it, so the
+domain switch needs no re-deploy. Requests from any other origin get a 403.
+
+Local signups (`localhost:8080`) are allowed, but their confirmation link points at
+`qiva.ch` — Brevo requires a publicly reachable redirect URL.
+
+## Test it end to end
+
+1. `python3 -m http.server 8080` and open `http://localhost:8080` (that exact origin — it is
+   in the allow-list).
+2. Sign up with a real address you can read. The form should swap to "Danke! Dein 20 %-Code
+   ist unterwegs".
+3. Check Brevo *Contacts* — the address appears with status **unconfirmed**.
+4. Click the confirmation link in the email. It should land on `qiva.ch/?nl=ok#kaufen`, the
+   contact flips to **confirmed** and joins the list, and `js/main.js` reveals the `QIVA20`
+   coupon.
+
+| Symptom | Cause |
+|---|---|
+| Console: CORS / 403 | Origin not in `SITES`. Use `localhost:8080`, not `:3000` or a `file://` path |
+| Form shows the error hint | Worker returned 502 — check the Brevo detail in the Cloudflare worker logs |
+| 500 "BREVO_API_KEY fehlt" | Secret not set, or set as a plain variable instead of a Secret |
+| Brevo 400 on the API call | `QUELLE`/`RABATTCODE` attributes missing, or wrong `LIST_ID`/`DOI_TEMPLATE_ID` |
+| No email arrives | Template not activated, or `{{ params.DOIurl }}` missing from it |
+| Signup silently "succeeds", no contact | The honeypot caught it — the hidden `website` field was filled |
+
+---
+
 # Go-live checklist
 
 The repo is `Ekvy/qiva-product-page`. The account was formerly named `Pohlinator`; GitHub
 still redirects the old paths, and the local `github-pohlinator` SSH remote alias keeps
 working — it's just a key alias, unrelated to the account name.
 
-## 0. Close the open TODOs in the code
+## 0. Close the open TODO in the code
 
-These two must be done or the newsletter silently breaks. Both are unrelated to DNS, so do
-them first.
+Unrelated to DNS, so do it first.
 
 - **`js/main.js`** — `NEWSLETTER_ENDPOINT` is still the placeholder
-  `https://DEINE-WORKER-URL.workers.dev`. Deploy the worker in `brevo-proxy/` (deploy steps
-  are in the file header) and paste its real URL here. Until then every newsletter signup
-  fails — which also means the advertised 20 % discount code can't be delivered.
-- **`brevo-proxy/worker.js`** — `REDIRECT_URL` and `ALLOWED_ORIGINS` both point at
-  `ekvy.github.io`. After the domain switch, requests from `https://qiva.ch` get rejected by
-  CORS and the double-opt-in confirmation redirects to the old URL. Update to:
-  ```js
-  const REDIRECT_URL = "https://qiva.ch/?nl=ok#kaufen";
-  const ALLOWED_ORIGINS = [
-    "https://qiva.ch",
-    "https://www.qiva.ch",
-    "http://localhost:8080",
-    "http://127.0.0.1:8080",
-  ];
-  ```
-  Re-deploy the worker after editing.
+  `https://DEINE-WORKER-URL.workers.dev`. Work through
+  [Newsletter setup](#newsletter-setup-brevo--cloudflare-worker) above, then paste the real
+  worker URL here. Until then every newsletter signup silently shows "Danke!" without
+  storing anything — which also means the advertised 20 % discount code is never delivered.
+
+Origins and the confirmation redirect are already handled: `worker.js` allows both
+`ekvy.github.io` and `qiva.ch` and picks the redirect target from the requesting origin, so
+the domain switch needs no worker re-deploy.
 
 ## 1. Publish the site
 

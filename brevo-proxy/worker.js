@@ -5,32 +5,37 @@
  * E-Mail-Adresse per Double-Opt-In bei Brevo an. Der Brevo-API-Key bleibt
  * serverseitig als Secret und taucht NIE im öffentlichen Seiten-Code auf.
  *
- * Deploy:
- *   1. Auf dash.cloudflare.com → Workers & Pages → Create Worker
- *   2. Diesen Code einfügen und deployen
- *   3. Settings → Variables → "Add secret":  BREVO_API_KEY = <dein Brevo API v3 Key>
- *      (Brevo → Settings → SMTP & API → API Keys → Generate a new API key)
- *   4. Die Worker-URL (z. B. https://qiva-newsletter.<name>.workers.dev)
- *      in js/main.js als NEWSLETTER_ENDPOINT eintragen.
+ * Einrichtung Schritt für Schritt: siehe README.md, Abschnitt
+ * "Newsletter setup (Brevo + Cloudflare Worker)".
  */
 
 // --- Konfiguration ---------------------------------------------------------
 const LIST_ID = 3;          // Brevo-Liste "QIVA Newsletter"
 const DOI_TEMPLATE_ID = 5;  // Brevo-Template "QIVA — Double-Opt-In Bestätigung"
-const REDIRECT_URL = "https://ekvy.github.io/qiva-product-page/?nl=ok#kaufen";
 const DISCOUNT_CODE = "QIVA20";
 
-// Nur diese Origins dürfen den Worker aufrufen (CORS).
-const ALLOWED_ORIGINS = [
-  "https://ekvy.github.io",
-  "http://localhost:8080",
-  "http://127.0.0.1:8080",
-];
+/**
+ * Erlaubte Origins (CORS) und die Seite, auf der der Nutzer nach dem Klick auf
+ * "Anmeldung bestätigen" landet. Beides an einer Stelle, damit es nicht
+ * auseinanderläuft. Der Redirect richtet sich nach der Seite, von der die
+ * Anmeldung kam — so funktioniert die Umstellung ekvy.github.io -> qiva.ch
+ * ohne erneutes Deployen.
+ */
+const PRIMARY_ORIGIN = "https://qiva.ch";
+const SITES = {
+  "https://qiva.ch": "https://qiva.ch/?nl=ok#kaufen",
+  "https://www.qiva.ch": "https://www.qiva.ch/?nl=ok#kaufen",
+  // Fallback, solange die Domain noch nicht umgestellt ist:
+  "https://ekvy.github.io": "https://ekvy.github.io/qiva-product-page/?nl=ok#kaufen",
+  // Lokale Tests: Brevo braucht eine öffentlich erreichbare Redirect-URL,
+  // der Bestätigungslink führt deshalb auf die Live-Seite.
+  "http://localhost:8080": "https://qiva.ch/?nl=ok#kaufen",
+  "http://127.0.0.1:8080": "https://qiva.ch/?nl=ok#kaufen",
+};
 
 function corsHeaders(origin) {
-  const allow = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
-    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Vary": "Origin",
@@ -40,6 +45,14 @@ function corsHeaders(origin) {
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
+
+    // Unbekannte Origins bekommen keine CORS-Freigabe.
+    if (!Object.prototype.hasOwnProperty.call(SITES, origin)) {
+      return new Response(JSON.stringify({ error: "Origin not allowed" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
     const cors = corsHeaders(origin);
 
     if (request.method === "OPTIONS") {
@@ -48,12 +61,21 @@ export default {
     if (request.method !== "POST") {
       return json({ error: "Method not allowed" }, 405, cors);
     }
+    if (!env.BREVO_API_KEY) {
+      return json({ error: "BREVO_API_KEY fehlt (Secret im Worker setzen)" }, 500, cors);
+    }
 
     let body;
     try {
       body = await request.json();
     } catch {
       return json({ error: "Invalid JSON" }, 400, cors);
+    }
+
+    // Honeypot: das Feld ist auf der Seite unsichtbar. Nur Bots füllen es aus.
+    // Wir antworten mit ok, damit der Bot den Filter nicht bemerkt.
+    if (String(body.website || "").trim() !== "") {
+      return json({ ok: true }, 200, cors);
     }
 
     const email = String(body.email || "").trim().toLowerCase();
@@ -73,19 +95,21 @@ export default {
         email,
         includeListIds: [LIST_ID],
         templateId: DOI_TEMPLATE_ID,
-        redirectionUrl: REDIRECT_URL,
+        redirectionUrl: SITES[origin] || SITES[PRIMARY_ORIGIN],
         attributes: { QUELLE: source, RABATTCODE: DISCOUNT_CODE },
       }),
     });
 
-    // Brevo: 201 = neuer Kontakt, 204 = existierte bereits (beides OK).
+    // Brevo: 201 = DOI-Mail verschickt, 204 = Kontakt existierte bereits (beides OK).
     if (brevoRes.status === 201 || brevoRes.status === 204) {
       return json({ ok: true }, 200, cors);
     }
 
+    // Details landen nur im Worker-Log, nicht in der Antwort an den Browser.
     let detail = "";
     try { detail = JSON.stringify(await brevoRes.json()); } catch { /* ignore */ }
-    return json({ error: "Brevo-Fehler", status: brevoRes.status, detail }, 502, cors);
+    console.error("Brevo error", brevoRes.status, detail);
+    return json({ error: "Brevo-Fehler", status: brevoRes.status }, 502, cors);
   },
 };
 
