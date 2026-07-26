@@ -19,6 +19,17 @@ const LIST_ID = 4;          // Brevo-Liste "QIVA Newsletter"
 const DOI_TEMPLATE_ID = 4;  // Brevo-Template "QIVA — Double-Opt-In Bestätigung"
 const DISCOUNT_CODE = "QIVA20";
 
+// --- Kontaktformular -------------------------------------------------------
+// Empfaenger der Anfragen von kontakt.html. Dieselbe Adresse, die auch im
+// Impressum und auf der Kontaktseite steht.
+const CONTACT_TO = "support@ekatlevy.de";
+// Absender MUSS eine Adresse unserer authentifizierten Domain sein. Die Adresse
+// aus dem Formular hier einzusetzen waere naheliegend, wuerde aber an DMARC
+// scheitern -- wir duerfen nicht im Namen fremder Domains senden, die Mail
+// landete im Spam. Die Besucheradresse kommt stattdessen in replyTo: Ein Klick
+// auf "Antworten" geht damit direkt an die Person.
+const CONTACT_FROM = { name: "QIVA Kontaktformular", email: "newsletter@qiva.ch" };
+
 /**
  * Erlaubte Origins (CORS) und die Seite, auf der der Nutzer nach dem Klick auf
  * "Anmeldung bestätigen" landet. Beides an einer Stelle, damit es nicht
@@ -78,9 +89,18 @@ export default {
     }
 
     // Honeypot: das Feld ist auf der Seite unsichtbar. Nur Bots füllen es aus.
-    // Wir antworten mit ok, damit der Bot den Filter nicht bemerkt.
+    // Wir antworten mit ok, damit der Bot den Filter nicht bemerkt. Gilt für
+    // beide Formulare.
     if (String(body.website || "").trim() !== "") {
       return json({ ok: true }, 200, cors);
+    }
+
+    // Route: /kontakt = Kontaktformular, alles andere = Newsletter. Der
+    // Newsletter liegt bewusst auf dem Wurzelpfad, damit die bereits in
+    // js/main.js eingetragene Worker-URL unverändert weiter funktioniert.
+    const path = new URL(request.url).pathname.replace(/\/+$/, "");
+    if (path === "/kontakt") {
+      return handleContact(body, env, cors);
     }
 
     const email = String(body.email || "").trim().toLowerCase();
@@ -117,6 +137,60 @@ export default {
     return json({ error: "Brevo-Fehler", status: brevoRes.status }, 502, cors);
   },
 };
+
+/**
+ * Kontaktformular: verschickt den Formularinhalt als Transaktionsmail an
+ * CONTACT_TO. Bewusst nur textContent -- ohne HTML kann eine Nachricht keine
+ * Markup-Reste in unseren Posteingang tragen.
+ */
+async function handleContact(body, env, cors) {
+  const clip = (v, max) => String(v || "").trim().slice(0, max);
+
+  const name = clip(body.name, 100);
+  const email = clip(body.email, 200).toLowerCase();
+  const subject = clip(body.subject, 150) || "Anfrage über das QIVA-Kontaktformular";
+  const message = clip(body.message, 5000);
+
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return json({ error: "Ungültige E-Mail-Adresse" }, 400, cors);
+  }
+  if (message.length < 2) {
+    return json({ error: "Nachricht fehlt" }, 400, cors);
+  }
+
+  const text =
+    "Neue Anfrage über das Kontaktformular auf qiva.ch\n" +
+    "------------------------------------------------\n\n" +
+    "Name:    " + (name || "(nicht angegeben)") + "\n" +
+    "E-Mail:  " + email + "\n" +
+    "Betreff: " + subject + "\n\n" +
+    "Nachricht:\n" + message + "\n";
+
+  const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "api-key": env.BREVO_API_KEY,
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    },
+    body: JSON.stringify({
+      sender: CONTACT_FROM,
+      to: [{ email: CONTACT_TO }],
+      replyTo: name ? { email, name } : { email },
+      subject: "[QIVA Kontakt] " + subject,
+      textContent: text,
+    }),
+  });
+
+  if (res.status === 201) {
+    return json({ ok: true }, 200, cors);
+  }
+
+  let detail = "";
+  try { detail = JSON.stringify(await res.json()); } catch { /* ignore */ }
+  console.error("Brevo contact error", res.status, detail);
+  return json({ error: "Versand fehlgeschlagen", status: res.status }, 502, cors);
+}
 
 function json(obj, status, cors) {
   return new Response(JSON.stringify(obj), {

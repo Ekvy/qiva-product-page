@@ -122,6 +122,24 @@ das Formular nur „Danke!" und sendet nichts — eine bewusste Schutzabfrage, d
 Worker nicht kaputt aussehen lässt. Die Zeichenkette `DEINE-WORKER-URL` kommt deshalb legitim
 noch einmal in der Prüfung selbst vor; ein Treffer beim Grep ist normal.
 
+### Kontaktformular
+
+Läuft über denselben Worker, Route **`/kontakt`**. Der Wurzelpfad bleibt der Newsletter —
+absichtlich, damit die schon eingetragene Worker-URL unverändert weiterfunktioniert.
+
+`kontakt.html` → `js/main.js` → `POST <worker>/kontakt` → Brevo `/v3/smtp/email` →
+`support@ekatlevy.de`. Vorher baute das Formular nur einen `mailto:`-Link; das scheiterte bei
+allen ohne eingerichtetes Mailprogramm, und die Nachricht kam nie an.
+
+**Absender ist `newsletter@qiva.ch`, nicht die Adresse des Besuchers.** Letzteres wäre
+naheliegend, würde aber an DMARC scheitern — wir dürfen nicht im Namen fremder Domains senden,
+die Mail landete im Spam oder würde abgewiesen. Die Besucheradresse steht in `replyTo`, ein
+Klick auf „Antworten" geht also trotzdem direkt an die Person.
+
+Versendet wird nur `textContent`, kein HTML — so kann eine eingesandte Nachricht keine
+Markup-Reste in den Posteingang tragen. Felder werden auf Länge begrenzt (Name 100, Betreff
+150, Nachricht 5000 Zeichen), das Honeypot-Feld `website` gilt für beide Formulare.
+
 ### Brevo
 
 | | |
@@ -226,8 +244,11 @@ nachgezogen werden — der Text ist **nicht** juristisch geprüft.
 
 ## Offen
 
-- **Alias `newsletter@qiva.ch` bei Hostpoint.** Der Versand läuft ohne ihn (über DKIM), aber
-  `replyTo` zeigt auf die Absenderadresse — Kundenantworten und Bounces verpuffen derzeit.
+- **Weiterleitung `newsletter@qiva.ch` bei Hostpoint.** Nicht mehr dringend: `replyTo` steht in
+  Template 4 auf `info@ekatlevy.de`, Antworten kommen also an. Offen bleiben nur Bounce- und
+  Fehlermeldungen fremder Mailserver — die gehen an die Absenderadresse, nicht an `replyTo`,
+  und werden verworfen, solange das Postfach nicht existiert. Eine Weiterleitung genügt, ein
+  eigenes Postfach ist nicht nötig.
 - **Stripe-Testkauf** von der Live-Domain (README Schritt 8): CHF 27.50, CH-Versandoption,
   Bestätigungsmail.
 - **Google Search Console** (Schritt 9): Domain-Property, Verifikations-TXT, Sitemap

@@ -275,33 +275,45 @@
   }
 
   /* ---- KONTAKTFORMULAR (Kontaktseite) ----
-     Ohne Backend: baut aus den Feldern eine mailto-Nachricht an support@ekatlevy.de
-     und öffnet die E-Mail-App des Nutzers. Für direkten Versand ohne E-Mail-App an
-     einen Formular-Dienst anbinden (Formspree/Brevo/…) und diesen Handler ersetzen. */
+     Schickt die Felder an den Brevo-Proxy (Route /kontakt), der daraus eine
+     Mail an support@ekatlevy.de macht. Vorher öffnete das Formular per mailto
+     die E-Mail-App des Nutzers — das scheiterte bei allen, die Webmail nutzen
+     oder kein Mailprogramm eingerichtet haben, und die Nachricht kam nie an. */
   const contactForm = document.getElementById("contactForm");
   if (contactForm) {
-    contactForm.addEventListener("submit", (e) => {
+    contactForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!contactForm.checkValidity()) { contactForm.reportValidity(); return; }
+
       const val = (id) => {
         const el = document.getElementById(id);
         return el ? el.value.trim() : "";
       };
-      const name = val("cfName");
-      const email = val("cfEmail");
-      const subject = val("cfSubject") || "Anfrage über das QIVA-Kontaktformular";
-      const message = val("cfMessage");
-      const body =
-        "Name: " + name + "\n" +
-        "E-Mail: " + email + "\n\n" +
-        message;
-      const mailto =
-        "mailto:support@ekatlevy.de" +
-        "?subject=" + encodeURIComponent(subject) +
-        "&body=" + encodeURIComponent(body);
-      window.location.href = mailto;
       const done = contactForm.querySelector(".contact-form__done");
-      if (done) done.hidden = false;
+      const btn = contactForm.querySelector("button[type=submit]");
+      const errorText = "Das hat leider nicht geklappt. Schreib uns direkt an support@ekatlevy.de.";
+
+      if (btn) { btn.disabled = true; btn.textContent = "Wird gesendet…"; }
+
+      try {
+        const res = await fetch(NEWSLETTER_ENDPOINT.replace(/\/+$/, "") + "/kontakt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: val("cfName"),
+            email: val("cfEmail"),
+            subject: val("cfSubject"),
+            message: val("cfMessage"),
+          }),
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        contactForm.reset();
+        if (done) done.hidden = false;
+      } catch (err) {
+        if (done) { done.textContent = errorText; done.hidden = false; }
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = "Nachricht senden"; }
+      }
     });
   }
 
