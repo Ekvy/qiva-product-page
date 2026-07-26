@@ -89,9 +89,9 @@
   }
 
   /* ---- "Jetzt kaufen" buttons — all share identical behaviour ----
-     Until Stripe is wired up they show a placeholder notice. To go live,
-     set the same real href (Stripe Payment Link) on every .js-buy element
-     and remove aria-disabled — then they all navigate to checkout. */
+     Schweiz: href ist der Stripe Payment Link (siehe REGIONS unten), Klick
+     führt direkt zum Checkout. Deutschland: kein buyUrl -> der Klick scrollt
+     stattdessen zum Coming-soon-/Newsletter-Bereich. */
   document.querySelectorAll(".js-buy").forEach((buy) => {
     buy.addEventListener("click", (e) => {
       const href = buy.getAttribute("href");

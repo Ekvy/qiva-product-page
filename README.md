@@ -164,6 +164,56 @@ The repo is `Ekvy/qiva-product-page`. The account was formerly named `Pohlinator
 still redirects the old paths, and the local `github-pohlinator` SSH remote alias keeps
 working — it's just a key alias, unrelated to the account name.
 
+## Open items — what is left before we are live
+
+Verified against the repo and live DNS/HTTP on **2026-07-26**. Everything not listed here was
+checked and is fine: all asset and page links resolve, every `canonical` / `og:url` /
+`sitemap.xml` entry already points at `https://qiva.ch`, `robots.txt` references the sitemap,
+the Impressum has the real address, HR number and UID, and the Stripe payment link is wired
+into both `index.html` and `js/main.js`.
+
+**Blocking — the site is not live yet:**
+
+- [ ] **The go-live work is not on `main`.** `towards-go-live` is 4 commits ahead; GitHub
+      Pages serves `main`, and the live page at `ekvy.github.io/qiva-product-page/` is still
+      the *old* version (no `qiva.ch` canonical, no structured data, no `CNAME`). → step 1
+- [ ] **DNS still points at the registrar's parking page.** `qiva.ch` resolves to
+      `185.101.158.113` (`default.hosttech.eu`), `www.qiva.ch` has no CNAME, and
+      `https://qiva.ch` does not respond. The records in step 2 have not been created yet,
+      and the existing hosttech A record on the apex must be deleted first. → step 2
+- [ ] **HTTPS** can only be enabled after DNS resolves. → step 3
+
+**Blocking for the newsletter (the 20 % discount we advertise on the page):**
+
+- [ ] **Brevo is not set up** — list, `QUELLE`/`RABATTCODE` attributes, DOI template and API
+      key. → [Newsletter setup, Part A](#part-a--brevo)
+- [ ] **Worker is not deployed** and `NEWSLETTER_ENDPOINT` in `js/main.js` is still the
+      `https://DEINE-WORKER-URL.workers.dev` placeholder. Until then every signup shows
+      "Danke!" and stores nothing. → [Part B](#part-b--cloudflare)
+- [ ] **`LIST_ID = 3` / `DOI_TEMPLATE_ID = 5`** in `brevo-proxy/worker.js` are unverified
+      guesses — confirm them against the real Brevo account.
+
+**Should be done before launch, not strictly blocking:**
+
+- [ ] **Name the newsletter processor in `datenschutz.html`.** Section 8 currently says only
+      that "ein spezialisierter Versanddienstleister" *may* be used. Now that the decision is
+      Brevo, it should be named, along with the third-country transfer. Suggested addition:
+      Brevo (Sendinblue GmbH, Köln / Brevo SAS, Paris) as processor, plus Cloudflare for the
+      signup proxy — Cloudflare is currently only covered by the generic "GitHub und
+      beteiligte Hosting- und IT-Dienstleister" line in the recipients list.
+- [ ] **Run one real Stripe purchase** end to end. The payment link is in the code but has
+      never been tested from the live domain — confirm CHF 27.50, the CH shipping option and
+      the confirmation email.
+- [ ] **Verify the domain on GitHub** so nobody else can claim `qiva.ch`. → step 4
+- [ ] **Google Search Console** property + sitemap submission. → step 5
+
+**Time-bound, remove after 31 August 2026:** the "Bis Ende August gratis Versand" promo bar
+and buy-section note in `index.html`, and the matching Launch-Aktion clause in `agb.html`.
+
+**Known limitation, no action needed now:** the contact form on `kontakt.html` is
+`mailto:`-based. It opens the visitor's mail app, which silently does nothing for people on
+webmail without a configured handler. Fine for launch, worth replacing later.
+
 ## 0. Close the open TODO in the code
 
 Unrelated to DNS, so do it first.
