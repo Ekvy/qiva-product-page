@@ -33,15 +33,18 @@ python3 -m http.server 8080
 
 ## Deploy to GitHub Pages
 
-1. Commit & push to the `Pohlinator/qiva-product-page` repo (remote already uses the
-   `github-pohlinator` SSH alias):
+1. Commit & push to the `Ekvy/qiva-product-page` repo (the account was formerly named
+   `Pohlinator`; the remote still uses the `github-pohlinator` SSH alias, which is just a
+   local key alias and keeps working):
    ```bash
    git add -A && git commit -m "Add QIVA Sculpt product page" && git push -u origin main
    ```
 2. On GitHub → **Settings → Pages** → *Build and deployment* → Source: **Deploy from a
    branch** → Branch: `main` / `/ (root)` → Save.
-3. Live at `https://pohlinator.github.io/qiva-product-page/` after ~1 min.
+3. Live at `https://ekvy.github.io/qiva-product-page/` after ~1 min.
    (All asset paths are relative, so the project-page subpath works without changes.)
+4. Custom domain: `qiva.ch` via the `CNAME` file. For the `www` subdomain the DNS target
+   is `ekvy.github.io.` — see the go-live notes for the full record set.
 
 ## TODO before launch
 
