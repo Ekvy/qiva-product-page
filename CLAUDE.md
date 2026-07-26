@@ -18,10 +18,9 @@ CORS-Allow-List des Newsletter-Workers. Unter einem anderen Port schlägt die An
 
 ## Commit-Konvention
 
-Es gibt **keinen** Auto-Commit mehr. Bis 2026-07-26 lag in `.claude/settings.json` ein
-`Stop`-Hook, der nach jedem Turn `git add -A && git commit && git push` ausführte. Er wurde
-bewusst entfernt, weil er ungeprüft alles mitnahm, was im Arbeitsverzeichnis lag — siehe die
-Warnung unter [Secrets](#secrets).
+Es gibt **keinen** Auto-Commit. Ein früherer `Stop`-Hook in `.claude/settings.json` führte
+nach jedem Turn `git add -A && git commit && git push` aus; er wurde entfernt, weil er
+ungeprüft alles mitnahm, was im Arbeitsverzeichnis lag. Nicht wieder einführen.
 
 Stattdessen gilt:
 
@@ -190,16 +189,13 @@ Werte **nie** mit dem Datei-Tool lesen. Stattdessen in der Shell laden und durch
 set -a; source .env; set +a
 ```
 
-> ⚠️ **Vorgeschichte:** Am 2026-07-26 wurde eine `.env.swp` — Vims Swap-Datei, die den
-> Klartext der `.env` enthält — vom damaligen Auto-Commit-Hook committet. Die `.gitignore`
-> deckte `.env` ab, aber nicht die Swap-Datei. Der Push scheiterte nur zufällig an einer
-> divergierten Remote-Historie; sonst wäre der Brevo-Key öffentlich gewesen. Der Commit wurde
-> per `git reset --soft` aus der Historie entfernt und `*.swp`/`.*.sw?` in die `.gitignore`
-> aufgenommen.
->
-> Lehre: Beim Anlegen von Dateien mit Zugangsdaten **zuerst** die `.gitignore` erweitern, dann
-> die Datei erstellen — und mit `git check-ignore -v <datei>` gegenprüfen, statt es
-> anzunehmen.
+**Regel: erst die `.gitignore` erweitern, dann die Datei mit Zugangsdaten anlegen** — und mit
+`git check-ignore -v <datei>` gegenprüfen, statt es anzunehmen.
+
+Eine `.gitignore`-Regel für `.env` allein reicht nicht. Editoren legen daneben Swap- und
+Backup-Dateien an (`.env.swp`, `.env~`), die den kompletten Klartext enthalten und von der
+`.env`-Regel nicht erfasst werden. Die passenden Muster stehen bereits in der `.gitignore` und
+gehören dort hin.
 
 Cloudflare-Token: Vorlage *Edit Cloudflare Workers*, Account-Scope. Kein Global API Key.
 Client-IP-Filter leer lassen — bei dynamischer IP sperrt er das Token sonst kommentarlos aus.

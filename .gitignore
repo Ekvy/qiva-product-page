@@ -2,9 +2,10 @@
 .playwright-mcp/
 *.log
 
-# Zugangsdaten — NIE committen. Vorlage: .env.example
+# Zugangsdaten — NIE committen. Einzige Ausnahme: die wertfreie Vorlage.
 .env
-.env.local
+.env.*
+!.env.example
 
 # Editor-Swap-/Backup-Dateien. Wichtig: eine .env.swp enthält den Klartext der
 # .env — ohne diese Regel landet der Inhalt trotz der .env-Regel oben im Repo.
@@ -13,3 +14,7 @@
 *.swn
 *~
 .*.sw?
+
+# Build-/Tool-Artefakte
+.wrangler/
+node_modules/
