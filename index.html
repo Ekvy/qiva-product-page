@@ -1,17 +1,33 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de-CH">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QIVA Sculpt — Active Sculpt Body Cream | Vegan · Handmade in Germany</title>
   <meta name="description" content="QIVA Sculpt Active Sculpt Body Cream — Power-Komplex aus Koffein, Guarana & L-Carnitin, gepflegt mit Hyaluron, Ceramiden & Panthenol. Für ein glatteres, strafferes Hautgefühl. Vegan, handmade in Germany. Duft: Zitrone-Vanille." />
+  <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#b39896" />
+  <link rel="canonical" href="https://qiva.ch/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="product" />
+  <meta property="og:site_name" content="QIVA" />
+  <meta property="og:locale" content="de_CH" />
+  <meta property="og:url" content="https://qiva.ch/" />
   <meta property="og:title" content="QIVA Sculpt — Active Sculpt Body Cream" />
   <meta property="og:description" content="Sculpt. Glow. Care. Ein straffer wirkendes Hautgefühl mit Koffein, Guarana & L-Carnitin. Vegan · Handmade in Germany." />
-  <meta property="og:image" content="./assets/brand-gold.jpg" />
+  <meta property="og:image" content="https://qiva.ch/assets/brand-gold.jpg" />
+  <meta property="og:image:width" content="1254" />
+  <meta property="og:image:height" content="1254" />
+  <meta property="og:image:alt" content="QIVA Sculpt Active Sculpt Body Cream" />
+  <meta property="product:price:amount" content="27.50" />
+  <meta property="product:price:currency" content="CHF" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="QIVA Sculpt — Active Sculpt Body Cream" />
+  <meta name="twitter:description" content="Sculpt. Glow. Care. Ein straffer wirkendes Hautgefühl mit Koffein, Guarana & L-Carnitin. Vegan · Handmade in Germany." />
+  <meta name="twitter:image" content="https://qiva.ch/assets/brand-gold.jpg" />
 
   <!-- Favicons -->
   <link rel="icon" type="image/png" sizes="32x32" href="./assets/icon-32.png" />
@@ -20,6 +36,81 @@
   <!-- Fonts -->
 
   <link rel="stylesheet" href="./css/styles.css" />
+
+  <!-- Structured data: Produkt, Marke, Website + Abschnitts-Navigation -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://qiva.ch/#organization",
+        "name": "QIVA",
+        "url": "https://qiva.ch/",
+        "logo": "https://qiva.ch/assets/icon-512.png",
+        "sameAs": ["https://www.instagram.com/qiva.care"]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://qiva.ch/#website",
+        "url": "https://qiva.ch/",
+        "name": "QIVA",
+        "inLanguage": "de-CH",
+        "publisher": { "@id": "https://qiva.ch/#organization" }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://qiva.ch/#webpage",
+        "url": "https://qiva.ch/",
+        "name": "QIVA Sculpt — Active Sculpt Body Cream",
+        "isPartOf": { "@id": "https://qiva.ch/#website" },
+        "inLanguage": "de-CH",
+        "primaryImageOfPage": "https://qiva.ch/assets/brand-gold.jpg",
+        "hasPart": [
+          { "@type": "WebPageElement", "name": "Wirkung", "url": "https://qiva.ch/#wirkung" },
+          { "@type": "WebPageElement", "name": "Wirkstoffe", "url": "https://qiva.ch/#wirkstoffe" },
+          { "@type": "WebPageElement", "name": "Anwendung", "url": "https://qiva.ch/#anwendung" },
+          { "@type": "WebPageElement", "name": "Details", "url": "https://qiva.ch/#details" },
+          { "@type": "WebPageElement", "name": "Kaufen", "url": "https://qiva.ch/#kaufen" }
+        ]
+      },
+      {
+        "@type": "ItemList",
+        "@id": "https://qiva.ch/#sections",
+        "name": "Abschnitte",
+        "itemListElement": [
+          { "@type": "SiteNavigationElement", "position": 1, "name": "Wirkung",     "description": "Drei Versprechen in einer Pflege: Sculpt, Glow, Care.",   "url": "https://qiva.ch/#wirkung" },
+          { "@type": "SiteNavigationElement", "position": 2, "name": "Wirkstoffe",  "description": "Jeder Wirkstoff mit Sinn gewählt — Koffein bis Sheabutter.", "url": "https://qiva.ch/#wirkstoffe" },
+          { "@type": "SiteNavigationElement", "position": 3, "name": "Anwendung",   "description": "Dein tägliches Sculpt-Ritual.",                            "url": "https://qiva.ch/#anwendung" },
+          { "@type": "SiteNavigationElement", "position": 4, "name": "Details",     "description": "Alle Produktdetails auf einen Blick.",                     "url": "https://qiva.ch/#details" },
+          { "@type": "SiteNavigationElement", "position": 5, "name": "Kaufen",      "description": "QIVA Sculpt für CHF 27.50 bestellen.",                     "url": "https://qiva.ch/#kaufen" }
+        ]
+      },
+      {
+        "@type": "Product",
+        "@id": "https://qiva.ch/#product",
+        "name": "QIVA Sculpt — Active Sculpt Body Cream",
+        "description": "Active Sculpt Body Cream mit einem Power-Komplex aus Koffein, Guarana & L-Carnitin, gepflegt mit Hyaluron, Ceramiden & Panthenol. Vegan, handmade in Germany. Duft: Zitrone-Vanille.",
+        "image": ["https://qiva.ch/assets/brand-gold.jpg", "https://qiva.ch/assets/bottle-hero.jpg"],
+        "url": "https://qiva.ch/",
+        "brand": { "@type": "Brand", "name": "QIVA" },
+        "category": "Körperpflege",
+        "size": "100 ml",
+        "mainEntityOfPage": { "@id": "https://qiva.ch/#webpage" },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://qiva.ch/#kaufen",
+          "priceCurrency": "CHF",
+          "price": "27.50",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition",
+          "areaServed": { "@type": "Country", "name": "CH" },
+          "seller": { "@id": "https://qiva.ch/#organization" }
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 
