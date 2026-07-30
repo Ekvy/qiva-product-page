@@ -168,12 +168,21 @@ Der Bestätigungslink im Template ist `{{ doubleoptin }}` — **nicht** `{{ para
 Die Attribute `QUELLE` und `RABATTCODE` müssen im Konto existieren, sonst quittiert Brevo
 jede Anmeldung mit 400.
 
-**Eine Mail, nicht zwei.** Die Opt-In-Mail trägt den Code `QIVA20` direkt. Bewusster
-Kompromiss: Der Code geht vor der Bestätigung raus, also auch an Adressen, die nie bestätigen
-— dafür braucht der Kunde keine zweite Mail. Es gibt **keine** Mail nach der Bestätigung: Der
-DOI-Endpunkt leitet nur auf `redirectionUrl` weiter, Brevos „final confirmation"-Template
-feuert dabei nicht, und eine Automation existiert nicht. Die Templates 5 und 6 sind
-überholte Entwürfe, deaktiviert und mit `[UNBENUTZT]` präfixiert.
+**Eine Mail, und der Code steht bewusst nicht darin.** Die Opt-In-Mail zeigt nur „20 % Rabatt"
+als Teaser; der Code `QIVA20` erscheint erst **nach** dem Bestätigungsklick, im Overlay auf
+`qiva.ch/?nl=ok#kaufen`. So bleibt der Klick der Preis für den Rabatt.
+
+Es gibt **keine** Mail nach der Bestätigung, und das ist keine Nachlässigkeit: Der DOI-Endpunkt
+leitet nach dem Klick nur auf `redirectionUrl` weiter, Brevos „final confirmation"-Template
+feuert dabei nicht, und eine Automation existiert im Konto nicht. Wer den Code zusätzlich per
+Mail schicken will, muss in Brevo unter *Automations* einen Ablauf anlegen (Auslöser: Kontakt
+zu Liste 4 hinzugefügt → Template 6 senden). Das geht **nur** über die Brevo-Oberfläche, die
+API hat dafür keine Endpunkte.
+
+Folge des aktuellen Aufbaus: Wer den Tab nach dem Bestätigen schließt, hat den Code verloren.
+Templates 5 und 6 sind überholte Entwürfe, deaktiviert und mit `[UNBENUTZT]` präfixiert —
+Template 6 enthält das fertige Willkommens-Design samt Code, falls die Automation später doch
+gebaut wird.
 
 Nach der Bestätigung landet der Nutzer auf `qiva.ch/?nl=ok#kaufen`; `js/main.js` blendet daraus
 das Gutschein-Overlay ein.

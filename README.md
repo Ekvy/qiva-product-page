@@ -137,13 +137,17 @@ Account `info@ekatlevy.de`, free plan. What is configured:
    the QIVA design was moved **into** template 4 instead. Never point `DOI_TEMPLATE_ID` at a
    freshly created template.
 
-4. **One email, not two.** The opt-in mail carries the `QIVA20` code directly. Trade-off,
-   decided deliberately: the code goes out before anyone confirms, so unconfirmed addresses
-   get it too — in exchange the customer needs no second mail to reach the discount.
-   Templates 5 and 6 are the superseded drafts, both deactivated and prefixed `[UNBENUTZT]`.
-   There is deliberately **no** post-confirmation mail: the DOI API only redirects to
+4. **One email, and the code is deliberately not in it.** The opt-in mail only teases
+   "20 % Rabatt"; the `QIVA20` code appears **after** the confirmation click, in the overlay
+   on `qiva.ch/?nl=ok#kaufen`. The click stays the price of the discount.
+
+   There is **no** post-confirmation mail: the DOI endpoint only redirects to
    `redirectionUrl`, it does not trigger Brevo's "final confirmation" template, and no
-   automation exists.
+   automation exists in the account. Sending the code by mail as well would need an
+   automation built in the Brevo UI (trigger: contact added to list 4 → send template 6) —
+   the API has no endpoints for that. Consequence as it stands: close the tab after
+   confirming and the code is gone. Templates 5 and 6 are superseded drafts, deactivated and
+   prefixed `[UNBENUTZT]`; template 6 still holds the finished welcome design with the code.
 5. **Sender** `newsletter@qiva.ch` (display name `QIVA`), used by template 4.
 6. **Domain authentication** for `qiva.ch` — DKIM, DMARC and the verification code are all
    green, so mail is signed and does not get treated as spoofed. The records live in the
