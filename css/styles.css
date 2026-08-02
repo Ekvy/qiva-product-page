@@ -439,16 +439,18 @@ html[data-region="ch"] .promo-bar { display: block; }
 .price--center .price__amount { font-size: 3rem; }
 
 .hero__visual { position: relative; z-index: 3; display: flex; justify-content: center; }
-.hero__bottle { width: auto; max-height: min(74vh, 620px); border-radius: 20px; box-shadow: var(--shadow-lg); animation: floaty 7s ease-in-out infinite; }
+.hero__bottle { width: auto; max-height: min(74vh, 620px); border-radius: 20px; box-shadow: var(--shadow-lg); display: block; }
 .hero__seal {
-  position: absolute; right: 4%; bottom: -6%;
+  /* Siegel oben rechts an der Videoecke. Liegt im .hero__media-Wrapper, die
+     Prozentwerte beziehen sich also auf das Video, nicht auf die Hero-Spalte. */
+  position: absolute; right: -4%; top: -5%; z-index: 2;
   width: clamp(78px, 12vw, 122px); height: clamp(78px, 12vw, 122px);
   display: grid; place-items: center; border-radius: 50%;
   background: var(--grad-embody-135); box-shadow: 0 0 30px rgba(155,191,99,.5); transform: rotate(-6deg);
 }
 .hero__seal img { width: 40%; }
 @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-@media (prefers-reduced-motion: reduce) { .hero__bottle { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .hero__media { animation: none; } }
 
 /* ---------- MARQUEE ---------- */
 .marquee { background: var(--plum-ink); color: var(--on-dark); overflow: hidden; padding: .95rem 0; }
@@ -685,6 +687,28 @@ html[data-region="de"] .buy__card .price--center { display: none; }
 .footer__legal { font-size: .82rem; color: rgba(247,240,230,.5); line-height: 1.8; }
 .footer__links a:hover { color: var(--blush); }
 .footer__copy { margin-top: 1rem; }
+/* KI-Transparenzhinweis (Art. 50 EU-KI-VO). Bewusst zurückhaltend, aber in
+   ausreichendem Kontrast — ein Hinweis, den man nicht lesen kann, erfüllt die
+   Offenlegungspflicht nicht. */
+.footer__ai { margin-top: .9rem; font-size: .78rem; color: rgba(247,240,230,.62); }
+.footer__ai a { color: rgba(247,240,230,.62); text-decoration: underline; text-underline-offset: 2px; }
+.footer__ai a:hover { color: var(--lime); }
+
+/* Hinweis direkt am Hero-Video: die Offenlegung muss dort erfolgen, wo der
+   Inhalt wahrgenommen wird, nicht nur im Footer. Als Einblendung unten rechts
+   im Bild, damit sie nicht als Bildunterschrift dominiert. Der dunkle Scrim
+   sichert die Lesbarkeit über hellen wie dunklen Bildbereichen — ohne ihn wäre
+   der Hinweis je nach Videoinhalt unlesbar und damit rechtlich wertlos. */
+.hero__media { position: relative; display: inline-block; line-height: 0;
+  animation: floaty 7s ease-in-out infinite; }
+.hero__ai-note {
+  position: absolute; right: .7rem; bottom: .7rem; margin: 0;
+  line-height: 1; font-size: .68rem; letter-spacing: .04em;
+  padding: .32rem .6rem; border-radius: 999px;
+  background: rgba(67,51,46,.42); backdrop-filter: blur(3px);
+}
+.hero__ai-note a { color: rgba(247,240,230,.92); text-decoration: none; }
+.hero__ai-note a:hover { color: var(--lime); text-decoration: underline; text-underline-offset: 2px; }
 
 /* ---------- Legal pages (Impressum / Datenschutz) ---------- */
 .legalbar { border-bottom: 1px solid rgba(70,56,48,.08); background: var(--cream); }

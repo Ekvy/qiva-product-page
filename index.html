@@ -259,6 +259,7 @@
                springt nicht. KI-Videomodelle treffen den Rundlauf von sich aus nie.
                Erzeugt aus dem Master in ~/Documents/QIVA-Unterlagen/video/ mit ffmpeg,
                Rezept siehe CLAUDE.md. -->
+          <div class="hero__media">
           <video class="hero__bottle" src="./assets/qiva-hero.mp4"
                  poster="./assets/bottle-citrus.jpg"
                  width="1080" height="1080"
@@ -267,8 +268,16 @@
             <img src="./assets/bottle-citrus.jpg" alt="QIVA Sculpt mit Zitrone und Vanille"
                  class="hero__bottle" width="1254" height="1254" />
           </video>
-          <div class="hero__seal" aria-hidden="true">
-            <img src="./assets/monogram-cream.png" alt="" />
+            <!-- KI-Transparenzhinweis (Art. 50 EU-KI-VO). Muss am Inhalt selbst
+                 stehen, nicht nur im Footer: Die Offenlegung ist spätestens zum
+                 Zeitpunkt der ersten Exposition fällig, und das Video liegt above
+                 the fold. Für kreative Werke erlaubt die Verordnung eine Form, die
+                 die Darstellung nicht beeinträchtigt -- daher die dezente
+                 Einblendung statt einer Bildunterschrift. -->
+            <p class="hero__ai-note"><a href="./impressum.html#ki">KI-generiert</a></p>
+            <div class="hero__seal" aria-hidden="true">
+              <img src="./assets/monogram-cream.png" alt="" />
+            </div>
           </div>
         </div>
       </div>
@@ -502,7 +511,8 @@
         <p class="footer__links">
           <a href="./impressum.html">Impressum</a> · <a href="./datenschutz.html">Datenschutz</a> · <a href="./kontakt.html">Kontakt</a> · <a href="./agb.html">AGB</a>
         </p>
-        <p class="footer__copy">© <span id="year">2026</span> QIVA. Alle Rechte vorbehalten.</p>
+        <p class="footer__ai">Alle Bild- und Videoinhalte dieser Website sind KI-generiert. <a href="./impressum.html#ki">Mehr dazu</a></p>
+          <p class="footer__copy">© <span id="year">2026</span> QIVA. Alle Rechte vorbehalten.</p>
       </div>
     </div>
   </footer>
