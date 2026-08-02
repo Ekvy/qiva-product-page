@@ -317,6 +317,17 @@
     });
   }
 
+  /* ---- Hero-Video bei reduzierter Bewegung anhalten ----
+     autoplay laesst sich nicht per CSS unterbinden. Wer "Bewegung reduzieren"
+     eingestellt hat, bekommt deshalb hier das Standbild: pause() friert das
+     Video ein, das poster-Bild bleibt sichtbar. */
+  const heroVideo = document.querySelector("video.hero__bottle");
+  if (heroVideo && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    heroVideo.removeAttribute("autoplay");
+    heroVideo.pause();
+    heroVideo.currentTime = 0;
+  }
+
   /* ---- Footer year ---- */
   const year = document.getElementById("year");
   if (year) year.textContent = String(new Date().getFullYear());

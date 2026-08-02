@@ -268,6 +268,41 @@ nachgezogen werden — der Text ist **nicht** juristisch geprüft.
   Wert steht nur deshalb auf 0, weil der Versand bis dahin gratis ist; bleibt er stehen,
   widerspricht die Auszeichnung dem Preis an der Kasse.
 
+## Hero-Video
+
+`assets/qiva-hero.mp4` — 1080×1080, 12 s, ohne Tonspur, 1,5 MB. Ersetzt das frühere
+Produktfoto im Hero. Das Standbild `bottle-citrus.jpg` bleibt als `poster` und als Fallback
+für Browser ohne Video.
+
+Erzeugt mit Higgsfield (Seedance 2.0), Startbild `bottle-citrus.jpg`. Zwei Dinge, die dabei
+zuverlässig schiefgehen und deshalb im Prompt ausgeschlossen sind:
+
+- **Keine Makro-/Detailaufnahmen des Labels.** Kein Videomodell rendert kleine Typografie
+  stabil; jede Annäherung erzeugt Buchstabensalat.
+- **Nichts darf über die Etikettfläche laufen.** Sobald Creme oder Partikel das Label
+  kreuzen, wird die Schrift dahinter neu erfunden und wirkt aufgemalt.
+
+Das Seitenverhältnis ist ein **Parameter**, kein Prompttext — `aspect_ratio: "1:1"`. Steht es
+nur im Prompt, ignoriert Higgsfield es und liefert seinen Standard. Gleiches gilt für den Ton:
+`generate_audio: false`.
+
+Der Master (1440×1440, unkomprimiert) liegt außerhalb des Repos in
+`~/Documents/QIVA-Unterlagen/video/`. Aus ihm entsteht die ausgelieferte Datei — Ping-Pong für
+die nahtlose Schleife, skaliert und komprimiert:
+
+```bash
+ffmpeg -i master.mp4 -filter_complex "
+[0:v]split[fwd][rev];
+[rev]reverse,trim=start=0.041667:end=6.0,setpts=PTS-STARTPTS[rv];
+[fwd][rv]concat=n=2:v=1,scale=1080:1080,format=yuv420p[v]" \
+  -map "[v]" -an -c:v libx264 -crf 26 -preset slow -movflags +faststart out.mp4
+```
+
+Die beiden `trim`-Werte entfernen je einen Frame — am Umkehrpunkt und am Schleifenpunkt —,
+sonst entstehen dort Doppelbilder. Prüfen lässt sich der Rundlauf, indem man ersten und
+letzten Frame per `psnr` vergleicht: über ~30 dB ist der Sprung unsichtbar, das Original ohne
+Nachbearbeitung lag bei 13,9 dB.
+
 ## Strukturierte Daten: was bewusst fehlt
 
 Die Search Console meldet für `qiva.ch` vier **nicht kritische** Hinweise. Zwei davon sind

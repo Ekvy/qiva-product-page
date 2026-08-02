@@ -248,11 +248,25 @@
         </div>
 
         <div class="hero__visual reveal">
-          <picture>
-            <source srcset="./assets/bottle-citrus.webp" type="image/webp" />
+          <!-- Werbeclip statt Standbild. muted + playsinline sind Pflicht, sonst
+               verweigern iOS und Chrome den Autostart. poster ist bottle-citrus.jpg,
+               dasselbe Bild diente als Startframe der Generierung -- der Übergang vom
+               Standbild zum laufenden Video ist deshalb unsichtbar. Bei reduzierter
+               Bewegung bleibt es dauerhaft stehen (siehe js/main.js).
+
+               Der Clip ist eine Ping-Pong-Schleife: 6 s vorwärts, dann rückwärts.
+               Dadurch ist der letzte Frame konstruktionsbedingt der erste, die Schleife
+               springt nicht. KI-Videomodelle treffen den Rundlauf von sich aus nie.
+               Erzeugt aus dem Master in ~/Documents/QIVA-Unterlagen/video/ mit ffmpeg,
+               Rezept siehe CLAUDE.md. -->
+          <video class="hero__bottle" src="./assets/qiva-hero.mp4"
+                 poster="./assets/bottle-citrus.jpg"
+                 width="1080" height="1080"
+                 autoplay muted loop playsinline preload="metadata"
+                 aria-label="QIVA Sculpt — Werbeclip">
             <img src="./assets/bottle-citrus.jpg" alt="QIVA Sculpt mit Zitrone und Vanille"
-                 class="hero__bottle" width="1254" height="1254" fetchpriority="high" />
-          </picture>
+                 class="hero__bottle" width="1254" height="1254" />
+          </video>
           <div class="hero__seal" aria-hidden="true">
             <img src="./assets/monogram-cream.png" alt="" />
           </div>
