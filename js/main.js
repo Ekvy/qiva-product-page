@@ -317,15 +317,39 @@
     });
   }
 
-  /* ---- Hero-Video bei reduzierter Bewegung anhalten ----
-     autoplay laesst sich nicht per CSS unterbinden. Wer "Bewegung reduzieren"
-     eingestellt hat, bekommt deshalb hier das Standbild: pause() friert das
-     Video ein, das poster-Bild bleibt sichtbar. */
+  /* ---- Hero-Video: Start absichern, bei reduzierter Bewegung anhalten ----
+     Bei "Bewegung reduzieren" bleibt bewusst das poster-Bild stehen; autoplay
+     laesst sich nicht per CSS unterbinden, daher hier.
+
+     Sonst: Das autoplay-Attribut allein reicht auf Mobilgeraeten oft nicht.
+     Safari und Chrome verweigern den Start, wenn das Video beim Parsen noch
+     nicht genug gepuffert hat oder der Tab im Hintergrund geoeffnet wurde.
+     Deshalb rufen wir play() aktiv auf und wiederholen es bei den Ereignissen,
+     nach denen ein Start wieder erlaubt ist. play() liefert ein Promise, das
+     bei Ablehnung wirft -- ohne catch landet eine Fehlermeldung in der Konsole. */
   const heroVideo = document.querySelector("video.hero__bottle");
-  if (heroVideo && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    heroVideo.removeAttribute("autoplay");
-    heroVideo.pause();
-    heroVideo.currentTime = 0;
+  if (heroVideo) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      heroVideo.removeAttribute("autoplay");
+      heroVideo.pause();
+      heroVideo.currentTime = 0;
+    } else {
+      const tryPlay = () => {
+        const p = heroVideo.play();
+        if (p && typeof p.catch === "function") p.catch(() => { /* vom Browser blockiert */ });
+      };
+      tryPlay();
+      heroVideo.addEventListener("loadeddata", tryPlay, { once: true });
+      heroVideo.addEventListener("canplay", tryPlay, { once: true });
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) tryPlay();
+      });
+      // Letzter Ausweg: Beim iOS-Energiesparmodus bleibt autoplay gesperrt, bis
+      // der Nutzer die Seite beruehrt. Dann starten wir nach.
+      ["touchstart", "pointerdown"].forEach((ev) =>
+        window.addEventListener(ev, tryPlay, { once: true, passive: true })
+      );
+    }
   }
 
   /* ---- Footer year ---- */
