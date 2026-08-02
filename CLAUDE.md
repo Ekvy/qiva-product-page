@@ -264,4 +264,18 @@ nachgezogen werden — der Text ist **nicht** juristisch geprüft.
   einreichen.
 - **Schlusschecks** (Schritt 10): Rich Results Test, Social-Preview.
 - **Nach dem 31.08.2026:** Versand-Promo-Leiste in `index.html` und die Launch-Aktion-Klausel
-  in `agb.html` entfernen.
+  in `agb.html` entfernen — **und im JSON-LD `shippingRate` von `0` auf `7.90` setzen.** Der
+  Wert steht nur deshalb auf 0, weil der Versand bis dahin gratis ist; bleibt er stehen,
+  widerspricht die Auszeichnung dem Preis an der Kasse.
+
+## Strukturierte Daten: was bewusst fehlt
+
+Die Search Console meldet für `qiva.ch` vier **nicht kritische** Hinweise. Zwei davon sind
+behoben (`shippingDetails`, `hasMerchantReturnPolicy` im `Offer`). Die beiden anderen —
+`review` und `aggregateRating` — bleiben offen, und zwar absichtlich: Es gibt keine echten
+Kundenbewertungen. Erfundene Bewertungen verstoßen gegen Googles Richtlinien und können eine
+manuelle Maßnahme gegen die Domain auslösen. Erst ergänzen, wenn echte Rezensionen vorliegen.
+
+`hasMerchantReturnPolicy` steht auf `MerchantReturnNotPermitted`, weil die AGB genau das sagen:
+Nach Schweizer Recht besteht bei Online-Käufen kein Widerrufsrecht, und ein freiwilliges
+Rückgaberecht wird nicht gewährt. Ändern sich die AGB, muss dieser Wert mit.

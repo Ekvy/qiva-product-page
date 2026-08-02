@@ -37,7 +37,18 @@
 
   <link rel="stylesheet" href="./css/styles.css" />
 
-  <!-- Structured data: Produkt, Marke, Website + Abschnitts-Navigation -->
+  <!-- Structured data: Produkt, Marke, Website + Abschnitts-Navigation.
+
+       ACHTUNG shippingRate: steht auf 0 CHF, weil der Versand laut AGB bis zum
+       31.08.2026 gratis ist. Danach gelten CHF 7,90 pro Bestellung -- den Wert
+       dann hier mitziehen, sonst weicht die Auszeichnung vom Kassenpreis ab.
+
+       Bewusst NICHT enthalten sind review und aggregateRating. Die Search
+       Console meldet sie als (nicht kritische) Verbesserungsvorschläge, aber es
+       gibt bislang keine echten Kundenbewertungen. Erfundene Bewertungen
+       verstossen gegen Googles Richtlinien und koennen eine manuelle Massnahme
+       ausloesen. Ergaenzen, sobald es echte Rezensionen gibt -- nicht vorher. -->
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -107,7 +118,22 @@
           "availability": "https://schema.org/InStock",
           "itemCondition": "https://schema.org/NewCondition",
           "areaServed": { "@type": "Country", "name": "CH" },
-          "seller": { "@id": "https://qiva.ch/#organization" }
+          "seller": { "@id": "https://qiva.ch/#organization" },
+          "shippingDetails": {
+            "@type": "OfferShippingDetails",
+            "shippingRate": { "@type": "MonetaryAmount", "value": "0", "currency": "CHF" },
+            "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "CH" },
+            "deliveryTime": {
+              "@type": "ShippingDeliveryTime",
+              "transitTime": { "@type": "QuantitativeValue", "minValue": 2, "maxValue": 5, "unitCode": "DAY" }
+            }
+          },
+          "hasMerchantReturnPolicy": {
+            "@type": "MerchantReturnPolicy",
+            "applicableCountry": "CH",
+            "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted",
+            "merchantReturnLink": "https://qiva.ch/agb.html"
+          }
         }
       }
     ]
